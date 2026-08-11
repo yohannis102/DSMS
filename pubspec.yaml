@@ -46,6 +46,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
 
 flutter_launcher_icons:
   android: "ic_launcher"
@@ -61,6 +62,14 @@ flutter_launcher_icons:
   macos:
     generate: true
     image_path: "assets/images/DSMS_logo.png"
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/DSMS_logo_splash.png
+  android_12:
+    image: assets/images/DSMS_logo_splash.png
+    icon_background_color: "#ffffff"
+  web: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
