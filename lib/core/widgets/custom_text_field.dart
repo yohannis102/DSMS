@@ -13,6 +13,7 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final bool enabled;
+  final int? maxLength;
 
   const CustomTextField({
     super.key,
@@ -27,6 +28,7 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.enabled = true,
+    this.maxLength,
   });
 
   @override
@@ -51,6 +53,7 @@ class CustomTextField extends StatelessWidget {
           validator: validator,
           onChanged: onChanged,
           enabled: enabled,
+          maxLength: maxLength,
           style: const TextStyle(
             fontSize: 15,
             color: AppTheme.darkText,
@@ -64,6 +67,7 @@ class CustomTextField extends StatelessWidget {
               size: 20,
             ),
             suffixIcon: suffixIcon,
+            counterText: '',
           ),
         ),
       ],

@@ -5,6 +5,8 @@ import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/custom_text_field.dart';
 import 'auth_controller.dart';
 import 'auth_model.dart';
+import '../forgot_password/forgot_password_page.dart';
+
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -220,11 +222,12 @@ class _AuthPageState extends State<AuthPage> {
                           onPressed: _controller.isLoading
                               ? null
                               : () {
-                                  AppToast.showInfo(
-                                    context: context,
-                                    title: 'Forgot Password',
-                                    description:
-                                        'Password reset functionality will be sent via SMS/Email.',
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ForgotPasswordPage(),
+                                    ),
                                   );
                                 },
                           style: TextButton.styleFrom(
@@ -270,7 +273,7 @@ class _AuthPageState extends State<AuthPage> {
                               context: context,
                               title: 'Registration',
                               description:
-                                  'Please contact school admin or instructor to register.',
+                                  'Please contact school admin to register.',
                             );
                           },
                           child: const Text(
@@ -334,7 +337,9 @@ class GestureContainer extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? AppTheme.darkText : AppTheme.secondaryText,
+                  color: isSelected
+                      ? AppTheme.darkText
+                      : AppTheme.secondaryText,
                 ),
               ),
             ],
