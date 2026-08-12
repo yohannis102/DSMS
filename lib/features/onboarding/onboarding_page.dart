@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'onboarding_controller.dart';
+import '../auth/auth_page.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -45,19 +46,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _controller.isLastPage
-                      ? null
-                      : _controller.skipToLast,
-                  child: Text(
-                    _controller.isLastPage ? '' : 'Skip',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
+                child: _controller.isLastPage
+                    ? const SizedBox(height: 48)
+                    : TextButton(
+                        onPressed: _controller.skipToLast,
+                        child: const Text(
+                          'Skip',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
               ),
             ),
 
@@ -142,6 +143,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: yellowAccent,
                       foregroundColor: Colors.black87,
+                      minimumSize: const Size(0, 48),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 28,
                         vertical: 14,
@@ -154,10 +156,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     onPressed: () {
                       if (_controller.isLastPage) {
                         _controller.completeOnboarding(() {
-                          // Navigate to Next Screen (e.g. Auth / Home)
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Onboarding completed!'),
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AuthPage(),
                             ),
                           );
                         });
