@@ -4,9 +4,8 @@ import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/custom_text_field.dart';
 import 'auth_controller.dart';
-import 'auth_model.dart';
+import '../admin_dashboard/admin_dashboard_page.dart';
 import '../forgot_password/forgot_password_page.dart';
-
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -40,6 +39,12 @@ class _AuthPageState extends State<AuthPage> {
           description:
               'Login successful as ${_controller.currentUser?.name ?? "User"}.',
         );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminDashboardPage(),
+          ),
+        );
       },
       onError: (message) {
         if (!mounted) return;
@@ -60,8 +65,6 @@ class _AuthPageState extends State<AuthPage> {
         child: ListenableBuilder(
           listenable: _controller,
           builder: (context, _) {
-            final isEmail = _controller.loginType == LoginType.email;
-
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
@@ -114,51 +117,13 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Login Type Toggle (Email vs Phone)
-                    Container(
-                      height: 48,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.border),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureContainer(
-                              title: 'Email Address',
-                              icon: Icons.email_outlined,
-                              isSelected: isEmail,
-                              onTap: () =>
-                                  _controller.setLoginType(LoginType.email),
-                            ),
-                          ),
-                          Expanded(
-                            child: GestureContainer(
-                              title: 'Phone Number',
-                              icon: Icons.phone_android_outlined,
-                              isSelected: !isEmail,
-                              onTap: () =>
-                                  _controller.setLoginType(LoginType.phone),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Input Field: Email or Phone
+                    // Input Field: Username or Email Address
                     CustomTextField(
                       controller: _controller.identifierController,
-                      labelText: isEmail ? 'Email Address' : 'Phone Number',
-                      hintText: isEmail ? 'student@dsms.com' : '+251911223344',
-                      prefixIcon: isEmail
-                          ? Icons.email_outlined
-                          : Icons.phone_outlined,
-                      keyboardType: isEmail
-                          ? TextInputType.emailAddress
-                          : TextInputType.phone,
+                      labelText: 'Username or Email Address',
+                      hintText: 'username or student@dsms.com',
+                      prefixIcon: Icons.person_outline_rounded,
+                      keyboardType: TextInputType.emailAddress,
                       validator: _controller.validateIdentifier,
                       enabled: !_controller.isLoading,
                     ),
@@ -292,58 +257,6 @@ class _AuthPageState extends State<AuthPage> {
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class GestureContainer extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const GestureContainer({
-    super.key,
-    required this.title,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected ? AppTheme.darkText : AppTheme.secondaryText,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected
-                      ? AppTheme.darkText
-                      : AppTheme.secondaryText,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

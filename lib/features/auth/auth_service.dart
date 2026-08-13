@@ -30,11 +30,12 @@ class AuthService {
       await Future.delayed(const Duration(milliseconds: 1200));
 
       // Simulate success response for testing
+      final isEmail = request.identifier.contains('@');
       final mockUser = UserModel(
         id: 'usr_001',
         name: 'Demo Student',
-        email: request.loginType == LoginType.email ? request.identifier : 'demo@dsms.com',
-        phone: request.loginType == LoginType.phone ? request.identifier : '+251911223344',
+        email: isEmail ? request.identifier : '${request.identifier}@dsms.com',
+        phone: '+251911223344',
         role: 'Student Driver',
       );
 

@@ -9,9 +9,6 @@ class AuthController extends ChangeNotifier {
   final TextEditingController identifierController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  LoginType _loginType = LoginType.email;
-  LoginType get loginType => _loginType;
-
   bool _isPasswordVisible = false;
   bool get isPasswordVisible => _isPasswordVisible;
 
@@ -29,15 +26,6 @@ class AuthController extends ChangeNotifier {
 
   bool get isAuthenticated => _currentUser != null;
 
-  void setLoginType(LoginType type) {
-    if (_loginType != type) {
-      _loginType = type;
-      identifierController.clear();
-      _errorMessage = null;
-      notifyListeners();
-    }
-  }
-
   void togglePasswordVisibility() {
     _isPasswordVisible = !_isPasswordVisible;
     notifyListeners();
@@ -51,21 +39,18 @@ class AuthController extends ChangeNotifier {
   // Validation Logic
   String? validateIdentifier(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return _loginType == LoginType.email
-          ? 'Please enter your email address'
-          : 'Please enter your phone number';
+      return 'Please enter your username or email address';
     }
 
     final trimmed = value.trim();
-    if (_loginType == LoginType.email) {
+    if (trimmed.length < 3) {
+      return 'Username or email address must be at least 3 characters';
+    }
+
+    if (trimmed.contains('@')) {
       final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
       if (!emailRegex.hasMatch(trimmed)) {
         return 'Please enter a valid email address';
-      }
-    } else {
-      final phoneRegex = RegExp(r'^\+?[0-9]{9,15}$');
-      if (!phoneRegex.hasMatch(trimmed.replaceAll(' ', ''))) {
-        return 'Please enter a valid phone number (e.g. +251911223344)';
       }
     }
     return null;
@@ -97,7 +82,6 @@ class AuthController extends ChangeNotifier {
       final request = AuthRequestModel(
         identifier: identifierController.text.trim(),
         password: passwordController.text,
-        loginType: _loginType,
         rememberMe: _rememberMe,
       );
 

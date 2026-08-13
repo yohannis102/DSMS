@@ -1,21 +1,17 @@
-enum LoginType { email, phone }
-
 class AuthRequestModel {
   final String identifier;
   final String password;
-  final LoginType loginType;
   final bool rememberMe;
 
   const AuthRequestModel({
     required this.identifier,
     required this.password,
-    required this.loginType,
     this.rememberMe = false,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      loginType == LoginType.email ? 'email' : 'phone': identifier,
+      'identifier': identifier,
       'password': password,
       'remember_me': rememberMe,
     };

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
+import 'core/router/app_gate.dart';
 import 'core/theme/app_theme.dart';
-import 'features/admin_dashboard/admin_dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         title: 'DSMS - Driving School Management System',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const AdminDashboardPage(),
+        home: const AppGate(),
       ),
     );
   }
