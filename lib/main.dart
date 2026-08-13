@@ -1,23 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/auth_page.dart';
-import 'features/onboarding/onboarding_page.dart';
-import 'features/onboarding/onboarding_service.dart';
+import 'features/admin_dashboard/admin_dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final isCompleted = await OnboardingService().isOnboardingCompleted();
-  runApp(MyApp(showOnboarding: !isCompleted));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool showOnboarding;
-
-  const MyApp({
-    super.key,
-    this.showOnboarding = false,
-  });
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +18,9 @@ class MyApp extends StatelessWidget {
         title: 'DSMS - Driving School Management System',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: showOnboarding ? const OnboardingPage() : const AuthPage(),
+        home: const AdminDashboardPage(),
       ),
     );
   }
 }
+
