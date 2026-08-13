@@ -82,7 +82,7 @@ class AuthController extends ChangeNotifier {
       final request = AuthRequestModel(
         identifier: identifierController.text.trim(),
         password: passwordController.text,
-        rememberMe: _rememberMe,
+        // rememberMe: _rememberMe,
       );
 
       final response = await _service.login(request);
@@ -93,7 +93,10 @@ class AuthController extends ChangeNotifier {
       onSuccess();
     } catch (e) {
       _isLoading = false;
-      _errorMessage = 'Invalid credentials or server unavailable. Please try again.';
+      final msg = e.toString().replaceAll('Exception: ', '').trim();
+      _errorMessage = msg.isNotEmpty
+          ? msg
+          : 'Invalid credentials or server unavailable. Please try again.';
       notifyListeners();
 
       onError(_errorMessage!);
