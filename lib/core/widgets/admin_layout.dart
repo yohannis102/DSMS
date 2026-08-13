@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../features/auth/auth_page.dart';
 import '../theme/app_theme.dart';
+import 'app_toast.dart';
 
 class AdminLayout extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int>? onItemSelected;
+  final VoidCallback? onSignOut;
   final Widget child;
   final String? title;
 
@@ -11,6 +14,7 @@ class AdminLayout extends StatelessWidget {
     super.key,
     this.selectedIndex = 0,
     this.onItemSelected,
+    this.onSignOut,
     required this.child,
     this.title,
   });
@@ -113,7 +117,6 @@ class AdminLayout extends StatelessWidget {
           // User Avatar & Info section
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-
             child: const Row(
               children: [
                 CircleAvatar(
@@ -205,6 +208,44 @@ class AdminLayout extends StatelessWidget {
                   isDesktop,
                 ),
               ],
+            ),
+          ),
+          const Divider(height: 1),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.logout_rounded,
+                  color: Colors.redAccent,
+                ),
+                title: const Text(
+                  'Sign Out',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () {
+                  if (!isDesktop) {
+                    Navigator.of(context).pop();
+                  }
+                  if (onSignOut != null) {
+                    onSignOut!();
+                  } else {
+                    AppToast.showInfo(
+                      context: context,
+                      title: 'Signed Out',
+                      description: 'You have been signed out successfully.',
+                    );
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const AuthPage()),
+                      (route) => false,
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ],

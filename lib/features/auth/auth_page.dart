@@ -41,9 +41,7 @@ class _AuthPageState extends State<AuthPage> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => const AdminDashboardPage(),
-          ),
+          MaterialPageRoute(builder: (_) => const AdminDashboardPage()),
         );
       },
       onError: (message) {
