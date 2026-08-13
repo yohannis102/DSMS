@@ -9,10 +9,13 @@ class PackageService {
     try {
       final response = await _dio.get('/packages');
       if (response.statusCode == 200 && response.data != null) {
+        ApiClient().setMockMode(false);
         final list = response.data as List<dynamic>;
         return list.map((e) => PackageModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (_) {
+      ApiClient().setMockMode(true);
+    }
 
     return const [
       PackageModel(id: 'PKG-01', packageName: 'Beginner Driving Training', price: 12000.0, duration: '30 Days', description: 'Complete course from theory to practical road test'),

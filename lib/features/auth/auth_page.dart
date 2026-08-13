@@ -3,6 +3,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/custom_text_field.dart';
+import '../../core/widgets/demo_mode_badge.dart';
 import 'auth_controller.dart';
 import '../admin_dashboard/admin_dashboard_page.dart';
 import '../forgot_password/forgot_password_page.dart';
@@ -73,7 +74,13 @@ class _AuthPageState extends State<AuthPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: const [
+                        DemoModeBadge(showWhenLive: true),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     // Header Logo & Branding
                     Center(
                       child: Container(

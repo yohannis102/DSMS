@@ -10,10 +10,11 @@ class AdminDashboardService {
       // Endpoint attempt
       final response = await _dio.get('/admin/dashboard/summary');
       if (response.statusCode == 200 && response.data != null) {
+        ApiClient().setMockMode(false);
         return AdminDashboardModel.fromJson(response.data);
       }
     } catch (_) {
-      // Fallback data matching user interface reference specs
+      ApiClient().setMockMode(true);
     }
 
     // Default reference values matching screenshot

@@ -9,10 +9,13 @@ class EnrolmentService {
     try {
       final response = await _dio.get('/enrolments');
       if (response.statusCode == 200 && response.data != null) {
+        ApiClient().setMockMode(false);
         final list = response.data as List<dynamic>;
         return list.map((e) => EnrolmentModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (_) {
+      ApiClient().setMockMode(true);
+    }
 
     return const [
       EnrolmentModel(enrolmentId: 'ENR-2026-01', studentName: 'Alice Smith', packageName: 'Full Driving Course', enrolmentDate: '2026-08-01', paymentStatus: 'Paid'),

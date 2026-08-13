@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/auth/auth_page.dart';
 import '../theme/app_theme.dart';
 import 'app_toast.dart';
+import 'demo_mode_badge.dart';
 
 class AdminLayout extends StatelessWidget {
   final int selectedIndex;
@@ -70,6 +71,8 @@ class AdminLayout extends StatelessWidget {
           ],
         ),
         actions: [
+          const DemoModeBadge(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () {},

@@ -15,6 +15,7 @@ class AuthService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
+        _apiClient.setMockMode(false);
         final authResponse = AuthResponseModel.fromJson(response.data);
         await _apiClient.setAuthToken(
           authResponse.accessToken,
@@ -42,6 +43,7 @@ class AuthService {
       }
 
       // Fallback to mock only if server is unreachable / offline
+      _apiClient.setMockMode(true);
       await Future.delayed(const Duration(milliseconds: 1200));
 
       final isEmail = request.identifier.contains('@');

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiClient {
@@ -7,6 +8,7 @@ class ApiClient {
 
   late final Dio dio;
   bool isServerAvailable = false;
+  final ValueNotifier<bool> isMockMode = ValueNotifier<bool>(true);
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     webOptions: WebOptions(
@@ -77,12 +79,21 @@ class ApiClient {
       if (response.statusCode == 200 && response.data != null) {
         final status = response.data is Map ? response.data['status'] : null;
         isServerAvailable = (status == 'ok');
+        isMockMode.value = !isServerAvailable;
         return isServerAvailable;
       }
     } catch (_) {
       isServerAvailable = false;
+      isMockMode.value = true;
     }
     return false;
+  }
+
+  /// Manually toggle or update mock mode status
+  void setMockMode(bool isMock) {
+    if (isMockMode.value != isMock) {
+      isMockMode.value = isMock;
+    }
   }
 
   /// Save access token securely and set Authorization header

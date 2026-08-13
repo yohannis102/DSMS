@@ -9,10 +9,13 @@ class ScheduleService {
     try {
       final response = await _dio.get('/schedules');
       if (response.statusCode == 200 && response.data != null) {
+        ApiClient().setMockMode(false);
         final list = response.data as List<dynamic>;
         return list.map((e) => ScheduleModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (_) {
+      ApiClient().setMockMode(true);
+    }
 
     return const [
       ScheduleModel(id: 'SCH-01', title: 'Beginner Road Practice', date: '2026-08-15', time: '09:00 AM - 11:00 AM', instructor: 'Michael Scott'),

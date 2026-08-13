@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/auth/auth_page.dart';
 import '../../features/onboarding/onboarding_page.dart';
 import '../../features/onboarding/onboarding_service.dart';
+import '../network/api_client.dart';
 import '../theme/app_theme.dart';
 
 class AppGate extends StatefulWidget {
@@ -21,7 +22,10 @@ class _AppGateState extends State<AppGate> {
   }
 
   Future<void> _checkInitialRoute() async {
-    // Small artificial delay if needed so splash logo renders smoothly
+    // Ping backend API to determine whether we are in Live or Demo mode
+    ApiClient().checkBackendHealth().catchError((_) => false);
+
+    // Small artificial delay so splash logo renders smoothly
     await Future.delayed(const Duration(milliseconds: 400));
     final bool isCompleted = await _onboardingService.isOnboardingCompleted();
 

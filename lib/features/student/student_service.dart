@@ -9,10 +9,13 @@ class StudentService {
     try {
       final response = await _dio.get('/students');
       if (response.statusCode == 200 && response.data != null) {
+        ApiClient().setMockMode(false);
         final list = response.data as List<dynamic>;
         return list.map((e) => StudentModel.fromJson(e)).toList();
       }
-    } catch (_) {}
+    } catch (_) {
+      ApiClient().setMockMode(true);
+    }
 
     return const [
       StudentModel(id: 'ST-001', name: 'Alice Smith', email: 'alice@example.com', phone: '+123456789', status: 'Active'),
