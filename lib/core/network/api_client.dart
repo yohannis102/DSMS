@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -105,6 +106,10 @@ class ApiClient {
     } catch (_) {
       // Safe fallback if native plugin channel fails
     }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+    } catch (_) {}
 
     if (refreshToken != null) {
       _inMemoryCache[_refreshTokenKey] = refreshToken;
@@ -113,6 +118,10 @@ class ApiClient {
       } catch (_) {
         // Safe fallback if native plugin channel fails
       }
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_refreshTokenKey, refreshToken);
+      } catch (_) {}
     }
   }
 
@@ -127,23 +136,44 @@ class ApiClient {
     try {
       await _storage.delete(key: _refreshTokenKey);
     } catch (_) {}
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_refreshTokenKey);
+    } catch (_) {}
   }
 
-  /// Read access token from FlutterSecureStorage or fallback cache
+  /// Read access token from FlutterSecureStorage, SharedPreferences, or fallback cache
   Future<String?> getStoredToken() async {
     try {
       final token = await _storage.read(key: _tokenKey);
       if (token != null && token.isNotEmpty) return token;
     } catch (_) {}
-    return _inMemoryCache[_tokenKey];
+    if (_inMemoryCache[_tokenKey] != null && _inMemoryCache[_tokenKey]!.isNotEmpty) {
+      return _inMemoryCache[_tokenKey];
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_tokenKey);
+      if (token != null && token.isNotEmpty) return token;
+    } catch (_) {}
+    return null;
   }
 
-  /// Read refresh token from FlutterSecureStorage or fallback cache
+  /// Read refresh token from FlutterSecureStorage, SharedPreferences, or fallback cache
   Future<String?> getStoredRefreshToken() async {
     try {
       final token = await _storage.read(key: _refreshTokenKey);
       if (token != null && token.isNotEmpty) return token;
     } catch (_) {}
-    return _inMemoryCache[_refreshTokenKey];
+    if (_inMemoryCache[_refreshTokenKey] != null && _inMemoryCache[_refreshTokenKey]!.isNotEmpty) {
+      return _inMemoryCache[_refreshTokenKey];
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_refreshTokenKey);
+      if (token != null && token.isNotEmpty) return token;
+    } catch (_) {}
+    return null;
   }
 }

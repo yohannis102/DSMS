@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../features/auth/auth_page.dart';
+import '../../features/auth/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'app_toast.dart';
 
@@ -230,13 +231,15 @@ class AdminLayout extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                onTap: () {
+                onTap: () async {
                   if (!isDesktop) {
                     Navigator.of(context).pop();
                   }
                   if (onSignOut != null) {
                     onSignOut!();
                   } else {
+                    await AuthService().logout();
+                    if (!context.mounted) return;
                     AppToast.showInfo(
                       context: context,
                       title: 'Signed Out',
