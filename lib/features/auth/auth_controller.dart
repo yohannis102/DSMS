@@ -82,7 +82,7 @@ class AuthController extends ChangeNotifier {
       final request = AuthRequestModel(
         identifier: identifierController.text.trim(),
         password: passwordController.text,
-        // rememberMe: _rememberMe,
+        rememberMe: _rememberMe,
       );
 
       final response = await _service.login(request);

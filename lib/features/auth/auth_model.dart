@@ -3,10 +3,12 @@ import 'dart:convert';
 class AuthRequestModel {
   final String identifier;
   final String password;
+  final bool rememberMe;
 
   const AuthRequestModel({
     required this.identifier,
     required this.password,
+    this.rememberMe = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -15,6 +17,7 @@ class AuthRequestModel {
       'username': identifier,
       'email': identifier,
       'password': password,
+      if (rememberMe) 'rememberMe': true,
     };
   }
 }
