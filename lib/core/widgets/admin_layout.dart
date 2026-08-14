@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../features/auth/auth_page.dart';
 import '../theme/app_theme.dart';
 import 'app_toast.dart';
-import 'demo_mode_badge.dart';
 
 class AdminLayout extends StatelessWidget {
   final int selectedIndex;
@@ -64,9 +63,12 @@ class AdminLayout extends StatelessWidget {
               )
             else
               const SizedBox(width: 16),
-            Text(
-              pageTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                pageTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

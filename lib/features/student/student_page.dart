@@ -59,10 +59,7 @@ class _StudentPageState extends State<StudentPage> {
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text(
           'Add Student',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: AppTheme.primaryDark,
       ),
@@ -120,9 +117,7 @@ class _StudentPageState extends State<StudentPage> {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 48),
         child: Center(
-          child: CircularProgressIndicator(
-            color: AppTheme.primaryDark,
-          ),
+          child: CircularProgressIndicator(color: AppTheme.primaryDark),
         ),
       );
     }
@@ -141,7 +136,7 @@ class _StudentPageState extends State<StudentPage> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'Failed to load students from backend API',
+                'Failed to load students',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -152,7 +147,10 @@ class _StudentPageState extends State<StudentPage> {
               Text(
                 _controller.errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: AppTheme.secondaryText),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.secondaryText,
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
@@ -177,7 +175,11 @@ class _StudentPageState extends State<StudentPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.people_outline, size: 48, color: AppTheme.secondaryText),
+              const Icon(
+                Icons.people_outline,
+                size: 48,
+                color: AppTheme.secondaryText,
+              ),
               const SizedBox(height: 12),
               const Text(
                 'No students found in backend database',
@@ -247,7 +249,9 @@ class _StudentPageState extends State<StudentPage> {
                       children: [
                         CircleAvatar(
                           radius: 14,
-                          backgroundColor: AppTheme.primaryDark.withValues(alpha: 0.1),
+                          backgroundColor: AppTheme.primaryDark.withValues(
+                            alpha: 0.1,
+                          ),
                           child: Text(
                             s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
                             style: const TextStyle(
@@ -462,9 +466,7 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: screenHeight * 0.88,
-      ),
+      constraints: BoxConstraints(maxHeight: screenHeight * 0.88),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -497,10 +499,13 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                      _isSaving ? null : () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded,
-                      color: AppTheme.secondaryText),
+                  onPressed: _isSaving
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppTheme.secondaryText,
+                  ),
                   tooltip: 'Close',
                 ),
               ],
@@ -689,7 +694,10 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                         isDense: true,
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'active', child: Text('Active')),
+                        DropdownMenuItem(
+                          value: 'active',
+                          child: Text('Active'),
+                        ),
                         DropdownMenuItem(
                           value: 'pending',
                           child: Text('Pending'),
