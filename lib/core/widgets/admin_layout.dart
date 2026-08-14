@@ -71,13 +71,11 @@ class AdminLayout extends StatelessWidget {
           ],
         ),
         actions: [
-          const DemoModeBadge(),
-          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             onPressed: () {},
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
         ],
       ),
       drawer: isDesktop
