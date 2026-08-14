@@ -1,21 +1,12 @@
-enum ForgotPasswordStep {
-  requestEmail,
-  verifyOtp,
-  resetPassword,
-  success,
-}
+enum ForgotPasswordStep { requestEmail, verifyOtp, resetPassword, success }
 
 class ForgotPasswordRequestModel {
   final String email;
 
-  ForgotPasswordRequestModel({
-    required this.email,
-  });
+  ForgotPasswordRequestModel({required this.email});
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-    };
+    return {'email': email};
   }
 }
 
@@ -23,36 +14,24 @@ class VerifyOtpRequestModel {
   final String email;
   final String otpCode;
 
-  VerifyOtpRequestModel({
-    required this.email,
-    required this.otpCode,
-  });
+  VerifyOtpRequestModel({required this.email, required this.otpCode});
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'otp_code': otpCode,
-    };
+    return {'email': email, 'otp': otpCode};
   }
 }
 
 class ResetPasswordRequestModel {
-  final String email;
   final String resetToken;
   final String newPassword;
 
   ResetPasswordRequestModel({
-    required this.email,
     required this.resetToken,
     required this.newPassword,
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'reset_token': resetToken,
-      'new_password': newPassword,
-    };
+    return {'resetToken': resetToken, 'newPassword': newPassword};
   }
 }
 
@@ -71,7 +50,9 @@ class ForgotPasswordResponseModel {
     return ForgotPasswordResponseModel(
       success: json['success'] as bool? ?? true,
       message: json['message'] as String? ?? 'Operation successful.',
-      resetToken: json['reset_token'] as String?,
+      resetToken:
+          (json['resetToken'] ?? json['reset_token'] ?? json['token'])
+              as String?,
     );
   }
 }

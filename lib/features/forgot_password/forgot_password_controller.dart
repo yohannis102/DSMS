@@ -13,7 +13,8 @@ class ForgotPasswordController extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   ForgotPasswordStep _currentStep = ForgotPasswordStep.requestEmail;
   ForgotPasswordStep get currentStep => _currentStep;
@@ -76,10 +77,13 @@ class ForgotPasswordController extends ChangeNotifier {
 
   // --- Password Strength Criteria ---
   bool get hasMinLength => newPasswordController.text.length >= 8;
-  bool get hasUppercase => RegExp(r'[A-Z]').hasMatch(newPasswordController.text);
-  bool get hasLowercase => RegExp(r'[a-z]').hasMatch(newPasswordController.text);
+  bool get hasUppercase =>
+      RegExp(r'[A-Z]').hasMatch(newPasswordController.text);
+  bool get hasLowercase =>
+      RegExp(r'[a-z]').hasMatch(newPasswordController.text);
   bool get hasDigit => RegExp(r'[0-9]').hasMatch(newPasswordController.text);
-  bool get hasSpecialChar => RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(newPasswordController.text);
+  bool get hasSpecialChar =>
+      RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(newPasswordController.text);
 
   int get passwordStrengthScore {
     int score = 0;
@@ -225,7 +229,6 @@ class ForgotPasswordController extends ChangeNotifier {
 
     try {
       final request = ResetPasswordRequestModel(
-        email: emailController.text.trim(),
         resetToken: _resetToken ?? 'mock_reset_token',
         newPassword: newPasswordController.text,
       );
