@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'schedule_controller.dart';
 
 class SchedulePage extends StatefulWidget {
@@ -59,8 +60,7 @@ class _SchedulePageState extends State<SchedulePage> {
               ),
               child: _controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                  : ScrollableTableWrapper(
                       child: DataTable(
                         columns: const [
                           DataColumn(label: Text('ID')),

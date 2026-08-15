@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'enrolment_controller.dart';
 
 class EnrolmentPage extends StatefulWidget {
@@ -59,8 +60,7 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
               ),
               child: _controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                  : ScrollableTableWrapper(
                       child: DataTable(
                         columns: const [
                           DataColumn(label: Text('Enrolment ID')),

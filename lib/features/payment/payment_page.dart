@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'payment_controller.dart';
 
 class PaymentPage extends StatefulWidget {
@@ -59,8 +60,7 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
               child: _controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                  : ScrollableTableWrapper(
                       child: DataTable(
                         columns: const [
                           DataColumn(label: Text('Txn ID')),

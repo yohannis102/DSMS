@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_toast.dart';
+import '../../core/widgets/profile_image_picker.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'student_controller.dart';
 import 'student_model.dart';
 
@@ -13,6 +15,7 @@ class StudentPage extends StatefulWidget {
 
 class _StudentPageState extends State<StudentPage> {
   late final StudentController _controller;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -27,6 +30,7 @@ class _StudentPageState extends State<StudentPage> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _controller.removeListener(_onUpdate);
     _controller.dispose();
     super.dispose();
@@ -42,11 +46,26 @@ class _StudentPageState extends State<StudentPage> {
     );
   }
 
+  void _openStudentDetails(StudentModel student) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _StudentDetailsDialog(
+        student: student,
+        onEdit: () {
+          Navigator.of(ctx).pop();
+          _openStudentForm(student: student);
+        },
+      ),
+    );
+  }
+
   void _confirmDelete(StudentModel student) {
     showDialog(
       context: context,
-      builder: (ctx) =>
-          _DeleteStudentDialog(student: student, controller: _controller),
+      builder: (ctx) => _DeleteStudentDialog(
+        student: student,
+        controller: _controller,
+      ),
     );
   }
 
@@ -68,17 +87,21 @@ class _StudentPageState extends State<StudentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Top Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Students Management',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.darkText,
+                  const Expanded(
+                    child: Text(
+                      'Students Management',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.darkText,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   IconButton(
@@ -95,6 +118,16 @@ class _StudentPageState extends State<StudentPage> {
               ),
             ),
             const SizedBox(height: 12),
+
+            // Metric Summary Cards
+            _buildMetricCards(),
+            const SizedBox(height: 12),
+
+            // Search & Filter Toolbar
+            _buildSearchAndFilters(),
+            const SizedBox(height: 12),
+
+            // Main Content Card
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -108,6 +141,185 @@ class _StudentPageState extends State<StudentPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMetricCards() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        int count = 4;
+        double ratio = 2.4;
+
+        if (screenWidth < 480) {
+          count = 2;
+          ratio = 1.9;
+        } else if (screenWidth < 768) {
+          count = 2;
+          ratio = 2.3;
+        } else if (screenWidth < 1100) {
+          count = 4;
+          ratio = 2.0;
+        }
+
+        return GridView.count(
+          crossAxisCount: count,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: ratio,
+          children: [
+            _buildStatCard(
+              title: 'Total',
+              value: '${_controller.totalCount}',
+              icon: Icons.people_alt_outlined,
+              color: const Color(0xFF1B70A4),
+            ),
+            _buildStatCard(
+              title: 'Active',
+              value: '${_controller.activeCount}',
+              icon: Icons.check_circle_outline,
+              color: const Color(0xFF10B981),
+            ),
+            _buildStatCard(
+              title: 'Pending',
+              value: '${_controller.pendingCount}',
+              icon: Icons.pending_actions_outlined,
+              color: const Color(0xFFF59E0B),
+            ),
+            _buildStatCard(
+              title: 'Inactive',
+              value: '${_controller.inactiveCount}',
+              icon: Icons.pause_circle_outline,
+              color: const Color(0xFF64748B),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.border),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 4,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.secondaryText,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilters() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search students...',
+                prefixIcon: const Icon(Icons.search, size: 18),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 16),
+                        onPressed: () {
+                          _searchController.clear();
+                          _controller.setSearchQuery('');
+                        },
+                      )
+                    : null,
+                isDense: true,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+              onChanged: (val) => _controller.setSearchQuery(val),
+            ),
+          ),
+          const SizedBox(width: 6),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _controller.statusFilter,
+              icon: const Icon(Icons.filter_list, size: 18),
+              style: const TextStyle(
+                color: AppTheme.darkText,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              items: const [
+                DropdownMenuItem(value: 'All', child: Text('All')),
+                DropdownMenuItem(value: 'Active', child: Text('Active')),
+                DropdownMenuItem(value: 'Pending', child: Text('Pending')),
+                DropdownMenuItem(value: 'Inactive', child: Text('Inactive')),
+              ],
+              onChanged: (val) {
+                if (val != null) _controller.setStatusFilter(val);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -168,52 +380,74 @@ class _StudentPageState extends State<StudentPage> {
       );
     }
 
-    if (_controller.students.isEmpty) {
+    final students = _controller.filteredStudents;
+
+    if (students.isEmpty) {
+      final isFiltered =
+          _controller.searchQuery.isNotEmpty ||
+          _controller.statusFilter != 'All';
+
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 36),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.people_outline,
+              Icon(
+                isFiltered
+                    ? Icons.search_off_outlined
+                    : Icons.people_outline,
                 size: 48,
                 color: AppTheme.secondaryText,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'No students found in backend database',
-                style: TextStyle(
+              Text(
+                isFiltered
+                    ? 'No students matching search/filter'
+                    : 'No students found in backend database',
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.secondaryText,
                 ),
               ),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () => _openStudentForm(),
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add First Student'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryDark,
-                  foregroundColor: Colors.white,
+              if (isFiltered)
+                OutlinedButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    _controller.setSearchQuery('');
+                    _controller.setStatusFilter('All');
+                  },
+                  child: const Text('Clear Filters'),
+                )
+              else
+                ElevatedButton.icon(
+                  onPressed: () => _openStudentForm(),
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add First Student'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryDark,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       );
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return ScrollableTableWrapper(
       child: DataTable(
         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
         dataRowMinHeight: 52,
         dataRowMaxHeight: 58,
         columns: const [
           DataColumn(
-            label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(
+              'Student',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           DataColumn(
             label: Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -240,95 +474,292 @@ class _StudentPageState extends State<StudentPage> {
             ),
           ),
         ],
-        rows: _controller.students
-            .map(
-              (s) => DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 14,
-                          backgroundColor: AppTheme.primaryDark.withValues(
-                            alpha: 0.1,
-                          ),
-                          child: Text(
-                            s.name.isNotEmpty ? s.name[0].toUpperCase() : 'S',
-                            style: const TextStyle(
-                              color: AppTheme.primaryDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          s.name.isNotEmpty ? s.name : 'Unknown',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.darkText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  DataCell(Text(s.email.isNotEmpty ? s.email : '-')),
-                  DataCell(Text(s.phone.isNotEmpty ? s.phone : '-')),
-                  DataCell(Text(s.gender.isNotEmpty ? s.gender : '-')),
-                  DataCell(
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+        rows: students.map((s) {
+          final statusLower = s.status.toLowerCase();
+          Color statusBgColor = Colors.green.withValues(alpha: 0.1);
+          Color statusTextColor = Colors.green;
+
+          if (statusLower == 'pending') {
+            statusBgColor = Colors.orange.withValues(alpha: 0.1);
+            statusTextColor = Colors.orange.shade800;
+          } else if (statusLower == 'inactive') {
+            statusBgColor = Colors.red.withValues(alpha: 0.1);
+            statusTextColor = Colors.red.shade700;
+          }
+
+          return DataRow(
+            cells: [
+              DataCell(
+                InkWell(
+                  onTap: () => _openStudentDetails(s),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ProfileAvatar(
+                        imageString: s.profilePicture,
+                        name: s.name,
+                        radius: 14,
                       ),
-                      decoration: BoxDecoration(
-                        color: s.status.toLowerCase() == 'active'
-                            ? Colors.green.withValues(alpha: 0.1)
-                            : Colors.orange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        s.status,
-                        style: TextStyle(
-                          color: s.status.toLowerCase() == 'active'
-                              ? Colors.green
-                              : Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      const SizedBox(width: 8),
+                      Text(
+                        s.name.isNotEmpty ? s.name : 'Unknown',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.darkText,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                  DataCell(
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: AppTheme.primaryDark,
-                          ),
-                          tooltip: 'Edit Student',
-                          onPressed: () => _openStudentForm(student: s),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            size: 18,
-                            color: Colors.redAccent,
-                          ),
-                          tooltip: 'Delete Student',
-                          onPressed: () => _confirmDelete(s),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            )
-            .toList(),
+              DataCell(Text(s.email.isNotEmpty ? s.email : '-')),
+              DataCell(Text(s.phone.isNotEmpty ? s.phone : '-')),
+              DataCell(Text(s.gender.isNotEmpty ? s.gender : '-')),
+              DataCell(
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusBgColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    s.status,
+                    style: TextStyle(
+                      color: statusTextColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+              DataCell(
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.visibility_outlined,
+                        size: 18,
+                        color: Color(0xFF64748B),
+                      ),
+                      tooltip: 'View Profile',
+                      onPressed: () => _openStudentDetails(s),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        size: 18,
+                        color: AppTheme.primaryDark,
+                      ),
+                      tooltip: 'Edit Student',
+                      onPressed: () => _openStudentForm(student: s),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: Colors.redAccent,
+                      ),
+                      tooltip: 'Delete Student',
+                      onPressed: () => _confirmDelete(s),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
+    );
+  }
+}
+
+class _StudentDetailsDialog extends StatelessWidget {
+  final StudentModel student;
+  final VoidCallback onEdit;
+
+  const _StudentDetailsDialog({
+    required this.student,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final statusLower = student.status.toLowerCase();
+    Color statusBgColor = Colors.green.withValues(alpha: 0.1);
+    Color statusTextColor = Colors.green;
+
+    if (statusLower == 'pending') {
+      statusBgColor = Colors.orange.withValues(alpha: 0.1);
+      statusTextColor = Colors.orange.shade800;
+    } else if (statusLower == 'inactive') {
+      statusBgColor = Colors.red.withValues(alpha: 0.1);
+      statusTextColor = Colors.red.shade700;
+    }
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 520),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with Avatar & Status
+            Row(
+              children: [
+                ProfileAvatar(
+                  imageString: student.profilePicture,
+                  name: student.name,
+                  radius: 28,
+                  fontSize: 22,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        student.name.isNotEmpty ? student.name : 'Unknown',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.darkText,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '@${student.username.isNotEmpty ? student.username : 'student'}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusBgColor,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    student.status,
+                    style: TextStyle(
+                      color: statusTextColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Divider(color: AppTheme.border),
+            const SizedBox(height: 12),
+
+            // Profile Info Grid
+            _buildInfoRow(
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: student.email.isNotEmpty ? student.email : '-',
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.phone_outlined,
+              label: 'Contact',
+              value: student.phone.isNotEmpty ? student.phone : '-',
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.person_outline,
+              label: 'Gender',
+              value: student.gender.isNotEmpty ? student.gender : '-',
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.cake_outlined,
+              label: 'Birthdate',
+              value: student.birthdate != null && student.birthdate!.isNotEmpty
+                  ? student.birthdate!
+                  : '-',
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.location_on_outlined,
+              label: 'Address',
+              value: student.address.isNotEmpty ? student.address : '-',
+            ),
+            const SizedBox(height: 24),
+
+            // Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text('Edit Profile'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryDark,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppTheme.secondaryText),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 130,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppTheme.secondaryText,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.darkText,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -348,11 +779,13 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _middleNameController;
   late final TextEditingController _lastNameController;
+  late final TextEditingController _birthdateController;
   late final TextEditingController _emailController;
   late final TextEditingController _contactController;
   late final TextEditingController _addressController;
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
+  late final TextEditingController _profilePictureController;
 
   String _gender = 'Female';
   String _accountStatus = 'active';
@@ -368,6 +801,7 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
     _firstNameController = TextEditingController(text: s?.firstName ?? '');
     _middleNameController = TextEditingController(text: s?.middleName ?? '');
     _lastNameController = TextEditingController(text: s?.lastName ?? '');
+    _birthdateController = TextEditingController(text: s?.birthdate ?? '');
     _emailController = TextEditingController(text: s?.email ?? '');
     _contactController = TextEditingController(
       text: s?.contact ?? s?.phone ?? '',
@@ -375,6 +809,9 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
     _addressController = TextEditingController(text: s?.address ?? '');
     _usernameController = TextEditingController(text: s?.username ?? '');
     _passwordController = TextEditingController();
+    _profilePictureController = TextEditingController(
+      text: s?.profilePicture ?? '',
+    );
 
     if (s != null && s.gender.isNotEmpty) {
       if (s.gender.toLowerCase() == 'male') {
@@ -394,12 +831,57 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
     _firstNameController.dispose();
     _middleNameController.dispose();
     _lastNameController.dispose();
+    _birthdateController.dispose();
     _emailController.dispose();
     _contactController.dispose();
     _addressController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
+    _profilePictureController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectBirthdate() async {
+    DateTime initial = DateTime(2000, 1, 1);
+    if (_birthdateController.text.isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(_birthdateController.text.trim());
+        if (parsed.isAfter(DateTime(1900)) && parsed.isBefore(DateTime.now())) {
+          initial = parsed;
+        }
+      } catch (_) {}
+    }
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppTheme.primaryDark,
+              onPrimary: Colors.white,
+              onSurface: AppTheme.darkText,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.primaryDark,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _birthdateController.text =
+            "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -411,11 +893,13 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
       'firstName': _firstNameController.text.trim(),
       'middleName': _middleNameController.text.trim(),
       'lastName': _lastNameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'contact': _contactController.text.trim(),
       'gender': _gender,
+      'birthdate': _birthdateController.text.trim(),
       'address': _addressController.text.trim(),
+      'contact': _contactController.text.trim(),
+      'email': _emailController.text.trim(),
       'username': _usernameController.text.trim(),
+      'profilePicture': _profilePictureController.text.trim(),
       'accountStatus': _accountStatus,
       'role': 'student',
     };
@@ -526,6 +1010,18 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Profile Image Picker (Camera / Gallery Upload)
+                    ProfileImagePicker(
+                      initialImage: _profilePictureController.text,
+                      name: '${_firstNameController.text} ${_lastNameController.text}',
+                      onImageChanged: (val) {
+                        setState(() {
+                          _profilePictureController.text = val ?? '';
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
                     Row(
                       children: [
                         Expanded(
@@ -597,21 +1093,21 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                       children: [
                         Expanded(
                           child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                              labelText: 'Email *',
+                            controller: _birthdateController,
+                            readOnly: true,
+                            onTap: _selectBirthdate,
+                            decoration: InputDecoration(
+                              labelText: 'Birthdate',
+                              hintText: 'YYYY-MM-DD',
                               isDense: true,
+                              suffixIcon: IconButton(
+                                icon: const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 18,
+                                ),
+                                onPressed: _selectBirthdate,
+                              ),
                             ),
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Required';
-                              }
-                              if (!v.contains('@') || !v.contains('.')) {
-                                return 'Invalid email format';
-                              }
-                              return null;
-                            },
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -629,6 +1125,24 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email *',
+                        isDense: true,
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) {
+                          return 'Required';
+                        }
+                        if (!v.contains('@') || !v.contains('.')) {
+                          return 'Invalid email format';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
@@ -708,7 +1222,9 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                         ),
                       ],
                       onChanged: (val) {
-                        if (val != null) setState(() => _accountStatus = val);
+                        if (val != null) {
+                          setState(() => _accountStatus = val);
+                        }
                       },
                     ),
                     const SizedBox(height: 24),
@@ -845,15 +1361,15 @@ class _DeleteStudentDialogState extends State<_DeleteStudentDialog> {
             foregroundColor: Colors.white,
           ),
           child: _isDeleting
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : const Text('Delete'),
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Text('Delete'),
         ),
       ],
     );

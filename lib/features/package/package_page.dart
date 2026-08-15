@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'package_controller.dart';
 
 class PackagePage extends StatefulWidget {
@@ -59,8 +60,7 @@ class _PackagePageState extends State<PackagePage> {
               ),
               child: _controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
+                  : ScrollableTableWrapper(
                       child: DataTable(
                         columns: const [
                           DataColumn(label: Text('Package ID')),

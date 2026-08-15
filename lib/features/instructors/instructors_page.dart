@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_toast.dart';
+import '../../core/widgets/profile_image_picker.dart';
+import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'instructors_controller.dart';
 import 'instructors_model.dart';
 
@@ -435,8 +437,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
       );
     }
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return ScrollableTableWrapper(
       child: DataTable(
         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
         dataRowMinHeight: 52,
@@ -500,30 +501,10 @@ class _InstructorsPageState extends State<InstructorsPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircleAvatar(
+                      ProfileAvatar(
+                        imageString: ins.profilePicture,
+                        name: ins.name,
                         radius: 14,
-                        backgroundColor: AppTheme.primaryDark.withValues(
-                          alpha: 0.1,
-                        ),
-                        backgroundImage:
-                            (ins.profilePicture != null &&
-                                ins.profilePicture!.startsWith('http'))
-                            ? NetworkImage(ins.profilePicture!)
-                            : null,
-                        child:
-                            (ins.profilePicture == null ||
-                                !ins.profilePicture!.startsWith('http'))
-                            ? Text(
-                                ins.name.isNotEmpty
-                                    ? ins.name[0].toUpperCase()
-                                    : 'I',
-                                style: const TextStyle(
-                                  color: AppTheme.primaryDark,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              )
-                            : null,
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -881,6 +862,18 @@ class _InstructorFormSheetState extends State<_InstructorFormSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Profile Image Picker (Camera / Gallery Upload)
+                    ProfileImagePicker(
+                      initialImage: _profilePictureController.text,
+                      name: '${_firstNameController.text} ${_lastNameController.text}',
+                      onImageChanged: (val) {
+                        setState(() {
+                          _profilePictureController.text = val ?? '';
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
                     // Names Row
                     Row(
                       children: [
@@ -1092,49 +1085,31 @@ class _InstructorFormSheetState extends State<_InstructorFormSheet> {
                     ),
                     const SizedBox(height: 14),
 
-                    // Profile Picture URL & Account Status Row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _profilePictureController,
-                            decoration: const InputDecoration(
-                              labelText: 'Profile Picture URL',
-                              hintText: 'https://...',
-                              isDense: true,
-                            ),
-                          ),
+                    DropdownButtonFormField<String>(
+                      initialValue: _accountStatus,
+                      decoration: const InputDecoration(
+                        labelText: 'Account Status',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'active',
+                          child: Text('Active'),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _accountStatus,
-                            decoration: const InputDecoration(
-                              labelText: 'Account Status',
-                              isDense: true,
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'active',
-                                child: Text('Active'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'pending',
-                                child: Text('Pending'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'inactive',
-                                child: Text('Inactive'),
-                              ),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() => _accountStatus = val);
-                              }
-                            },
-                          ),
+                        DropdownMenuItem(
+                          value: 'pending',
+                          child: Text('Pending'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'inactive',
+                          child: Text('Inactive'),
                         ),
                       ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() => _accountStatus = val);
+                        }
+                      },
                     ),
                     const SizedBox(height: 24),
 
@@ -1226,28 +1201,11 @@ class _InstructorDetailsDialog extends StatelessWidget {
             // Header with Avatar & Status
             Row(
               children: [
-                CircleAvatar(
+                ProfileAvatar(
+                  imageString: instructor.profilePicture,
+                  name: instructor.name,
                   radius: 28,
-                  backgroundColor: AppTheme.primaryDark.withValues(alpha: 0.1),
-                  backgroundImage:
-                      (instructor.profilePicture != null &&
-                          instructor.profilePicture!.startsWith('http'))
-                      ? NetworkImage(instructor.profilePicture!)
-                      : null,
-                  child:
-                      (instructor.profilePicture == null ||
-                          !instructor.profilePicture!.startsWith('http'))
-                      ? Text(
-                          instructor.name.isNotEmpty
-                              ? instructor.name[0].toUpperCase()
-                              : 'I',
-                          style: const TextStyle(
-                            color: AppTheme.primaryDark,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                        )
-                      : null,
+                  fontSize: 22,
                 ),
                 const SizedBox(width: 16),
                 Expanded(

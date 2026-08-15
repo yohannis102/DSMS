@@ -17,8 +17,49 @@ class StudentController extends ChangeNotifier {
   List<StudentModel> _students = [];
   List<StudentModel> get students => _students;
 
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  String _statusFilter = 'All';
+  String get statusFilter => _statusFilter;
+
   StudentController() {
     loadStudents();
+  }
+
+  List<StudentModel> get filteredStudents {
+    return _students.where((student) {
+      final query = _searchQuery.trim().toLowerCase();
+      final matchesSearch = query.isEmpty ||
+          student.name.toLowerCase().contains(query) ||
+          student.email.toLowerCase().contains(query) ||
+          student.phone.toLowerCase().contains(query) ||
+          student.username.toLowerCase().contains(query) ||
+          student.address.toLowerCase().contains(query);
+
+      final matchesStatus = _statusFilter == 'All' ||
+          student.status.toLowerCase() == _statusFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus;
+    }).toList();
+  }
+
+  int get totalCount => _students.length;
+  int get activeCount =>
+      _students.where((s) => s.status.toLowerCase() == 'active').length;
+  int get pendingCount =>
+      _students.where((s) => s.status.toLowerCase() == 'pending').length;
+  int get inactiveCount =>
+      _students.where((s) => s.status.toLowerCase() == 'inactive').length;
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  void setStatusFilter(String status) {
+    _statusFilter = status;
+    notifyListeners();
   }
 
   Future<void> loadStudents() async {
