@@ -89,11 +89,126 @@ class _ScrollableTableWrapperState extends State<ScrollableTableWrapper> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Schedule scroll flag check on layout change / resize
-        WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollFlags());
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _updateScrollFlags(),
+        );
 
-        return Stack(
-          alignment: Alignment.center,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            // Top Scroll Navigation Bar (On top of the table / columns)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Right: Interactive Top Scroll Buttons (Left & Right Arrows)
+                  Container(
+                    alignment: Alignment.centerRight,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.border),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0A000000),
+                          blurRadius: 3,
+                          offset: Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Scroll Left Button
+                        Tooltip(
+                          message: 'Scroll left',
+                          child: InkWell(
+                            borderRadius: const BorderRadius.horizontal(
+                              left: Radius.circular(7),
+                            ),
+                            onTap: _canScrollLeft ? _scrollLeft : null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_back_rounded,
+                                    size: 15,
+                                    color: _canScrollLeft
+                                        ? AppTheme.primaryDark
+                                        : const Color(0xFFCBD5E1),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Left',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _canScrollLeft
+                                          ? AppTheme.primaryDark
+                                          : const Color(0xFFCBD5E1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(width: 1, height: 18, color: AppTheme.border),
+                        // Scroll Right Button
+                        Tooltip(
+                          message: 'Scroll right',
+                          child: InkWell(
+                            borderRadius: const BorderRadius.horizontal(
+                              right: Radius.circular(7),
+                            ),
+                            onTap: _canScrollRight ? _scrollRight : null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Right',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _canScrollRight
+                                          ? AppTheme.primaryDark
+                                          : const Color(0xFFCBD5E1),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 15,
+                                    color: _canScrollRight
+                                        ? AppTheme.primaryDark
+                                        : const Color(0xFFCBD5E1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppTheme.border),
+            const SizedBox(height: 4),
+
             // Scrollable Content
             ScrollConfiguration(
               behavior: const MaterialScrollBehavior().copyWith(
@@ -116,128 +231,6 @@ class _ScrollableTableWrapperState extends State<ScrollableTableWrapper> {
                   ),
                   padding: widget.padding,
                   child: widget.child,
-                ),
-              ),
-            ),
-
-            // Left Scroll Arrow Overlay
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: IgnorePointer(
-                ignoring: !_canScrollLeft,
-                child: AnimatedOpacity(
-                  opacity: _canScrollLeft ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 4, right: 16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.white.withValues(alpha: 0.95),
-                          Colors.white.withValues(alpha: 0.7),
-                          Colors.white.withValues(alpha: 0.0),
-                        ],
-                        stops: const [0.0, 0.4, 1.0],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Material(
-                        color: Colors.white,
-                        shape: const CircleBorder(),
-                        elevation: 3,
-                        shadowColor: Colors.black26,
-                        child: Tooltip(
-                          message: 'Scroll left',
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: _canScrollLeft ? _scrollLeft : null,
-                            hoverColor: AppTheme.primaryDark.withValues(alpha: 0.1),
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppTheme.border,
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.chevron_left_rounded,
-                                color: AppTheme.primaryDark,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Right Scroll Arrow Overlay
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: IgnorePointer(
-                ignoring: !_canScrollRight,
-                child: AnimatedOpacity(
-                  opacity: _canScrollRight ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Container(
-                    padding: const EdgeInsets.only(right: 4, left: 16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.white.withValues(alpha: 0.0),
-                          Colors.white.withValues(alpha: 0.7),
-                          Colors.white.withValues(alpha: 0.95),
-                        ],
-                        stops: const [0.0, 0.6, 1.0],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Material(
-                        color: Colors.white,
-                        shape: const CircleBorder(),
-                        elevation: 3,
-                        shadowColor: Colors.black26,
-                        child: Tooltip(
-                          message: 'Scroll right',
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: _canScrollRight ? _scrollRight : null,
-                            hoverColor: AppTheme.primaryDark.withValues(alpha: 0.1),
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppTheme.border,
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppTheme.primaryDark,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ),
