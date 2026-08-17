@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
+import '../instructors/instructors_model.dart';
 import '../instructors/instructors_service.dart';
 import 'schedule_controller.dart';
 import 'schedule_model.dart';
@@ -345,7 +346,7 @@ class _SchedulePageState extends State<SchedulePage> {
 
           // Status Filter Dropdown
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(8),
@@ -361,39 +362,63 @@ class _SchedulePageState extends State<SchedulePage> {
                 ),
                 const SizedBox(width: 6),
                 DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _controller.statusFilter,
-                    isDense: true,
-                    style: const TextStyle(
-                      color: AppTheme.darkText,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 130),
+                    child: DropdownButton<String>(
+                      value: _controller.statusFilter,
+                      isDense: true,
+                      isExpanded: true,
+                      style: const TextStyle(
+                        color: AppTheme.darkText,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'All',
+                          child: Text(
+                            'Status: All',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Available',
+                          child: Text(
+                            'Available',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Full',
+                          child: Text(
+                            'Fully Booked',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Completed',
+                          child: Text(
+                            'Completed',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Cancelled',
+                          child: Text(
+                            'Cancelled',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) _controller.setStatusFilter(val);
+                      },
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'All',
-                        child: Text('Status: All'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Available',
-                        child: Text('Available'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Full',
-                        child: Text('Fully Booked'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Completed',
-                        child: Text('Completed'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Cancelled',
-                        child: Text('Cancelled'),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) _controller.setStatusFilter(val);
-                    },
                   ),
                 ),
               ],
@@ -403,7 +428,7 @@ class _SchedulePageState extends State<SchedulePage> {
           // Instructor Filter Dropdown
           if (_controller.availableInstructors.isNotEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(8),
@@ -419,27 +444,41 @@ class _SchedulePageState extends State<SchedulePage> {
                   ),
                   const SizedBox(width: 6),
                   DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _controller.instructorFilter,
-                      isDense: true,
-                      style: const TextStyle(
-                        color: AppTheme.darkText,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 150),
+                      child: DropdownButton<String>(
+                        value: _controller.instructorFilter,
+                        isDense: true,
+                        isExpanded: true,
+                        style: const TextStyle(
+                          color: AppTheme.darkText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: 'All',
+                            child: Text(
+                              'Instructor: All',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                          ..._controller.availableInstructors.map(
+                            (name) => DropdownMenuItem(
+                              value: name,
+                              child: Text(
+                                name,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) _controller.setInstructorFilter(val);
+                        },
                       ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: 'All',
-                          child: Text('Instructor: All'),
-                        ),
-                        ..._controller.availableInstructors.map(
-                          (name) =>
-                              DropdownMenuItem(value: name, child: Text(name)),
-                        ),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) _controller.setInstructorFilter(val);
-                      },
                     ),
                   ),
                 ],
@@ -616,9 +655,7 @@ class _SchedulePageState extends State<SchedulePage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           elevation: 0,
         ),
       ),
@@ -1005,9 +1042,9 @@ class _SchedulePageState extends State<SchedulePage> {
     if (amount >= 1000) {
       final formatted = amount.toStringAsFixed(0);
       final RegExp reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
-      return '${formatted.replaceAllMapped(reg, (Match m) => '${m[1]},')}';
+      return formatted.replaceAllMapped(reg, (Match m) => '${m[1]},');
     }
-    return '${amount.toStringAsFixed(0)}';
+    return amount.toStringAsFixed(0);
   }
 }
 
@@ -1030,15 +1067,18 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
   late final TextEditingController _codeController;
   late final TextEditingController _dateController;
   late final TextEditingController _timeController;
-  late final TextEditingController _instructorController;
   late final TextEditingController _slotsController;
   late final TextEditingController _totalSlotsController;
   late final TextEditingController _amountController;
   late final TextEditingController _remarksController;
 
+  String? _selectedInstructorId;
+  String? _selectedInstructorName;
+  List<InstructorsModel> _instructors = [];
+  bool _isLoadingInstructors = false;
+
   String _selectedStatus = 'Available';
   bool _isSaving = false;
-  List<String> _instructorSuggestions = [];
 
   bool get isEdit => widget.schedule != null;
 
@@ -1050,12 +1090,13 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
     final initialCode = s?.scheduleCode ?? widget.controller.generateNextCode();
     _codeController = TextEditingController(text: initialCode);
     _dateController = TextEditingController(
-      text: s?.date ?? _formatDate(DateTime.now().add(const Duration(days: 1))),
+      text: s?.date.isNotEmpty == true
+          ? s!.date
+          : _formatDate(DateTime.now().add(const Duration(days: 1))),
     );
     _timeController = TextEditingController(
-      text: s?.time ?? '08:00 AM - 10:00 AM',
+      text: s?.time.isNotEmpty == true ? s!.time : '08:00 AM - 10:00 AM',
     );
-    _instructorController = TextEditingController(text: s?.instructor ?? '');
     _slotsController = TextEditingController(
       text: (s?.slotsAvailable ?? 4).toString(),
     );
@@ -1068,37 +1109,58 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
     _remarksController = TextEditingController(text: s?.remarks ?? '');
     _selectedStatus = s?.status ?? 'Available';
 
+    _selectedInstructorId = s?.instructorId.isNotEmpty == true
+        ? s!.instructorId
+        : null;
+    _selectedInstructorName = s?.instructor;
+
     _loadInstructors();
   }
 
   Future<void> _loadInstructors() async {
+    setState(() => _isLoadingInstructors = true);
     try {
       final list = await InstructorsService().fetchInstructors();
       if (mounted) {
         setState(() {
-          _instructorSuggestions = list
-              .map((i) => i.name)
-              .where((n) => n.isNotEmpty)
-              .toSet()
-              .toList();
-          if (_instructorController.text.isEmpty &&
-              _instructorSuggestions.isNotEmpty) {
-            _instructorController.text = _instructorSuggestions.first;
+          _instructors = list;
+          _isLoadingInstructors = false;
+
+          // If editing or preselected, try to match by ID or Name
+          if (_selectedInstructorId != null &&
+              _selectedInstructorId!.isNotEmpty) {
+            final match = _instructors
+                .where((i) => i.id == _selectedInstructorId)
+                .firstOrNull;
+            if (match != null) {
+              _selectedInstructorId = match.id;
+              _selectedInstructorName = match.name;
+            }
+          } else if (_selectedInstructorName != null &&
+              _selectedInstructorName!.isNotEmpty) {
+            final match = _instructors
+                .where(
+                  (i) =>
+                      i.name.toLowerCase() ==
+                      _selectedInstructorName!.toLowerCase(),
+                )
+                .firstOrNull;
+            if (match != null) {
+              _selectedInstructorId = match.id;
+              _selectedInstructorName = match.name;
+            }
+          }
+
+          // If still null and instructors exist, select first
+          if (_selectedInstructorId == null && _instructors.isNotEmpty) {
+            _selectedInstructorId = _instructors.first.id;
+            _selectedInstructorName = _instructors.first.name;
           }
         });
       }
     } catch (_) {
-      // Fallback
-      if (mounted && _instructorController.text.isEmpty) {
-        setState(() {
-          _instructorSuggestions = [
-            'Michael Scott',
-            'Pam Beesly',
-            'Jim Halpert',
-            'Dwight Schrute',
-          ];
-          _instructorController.text = _instructorSuggestions.first;
-        });
+      if (mounted) {
+        setState(() => _isLoadingInstructors = false);
       }
     }
   }
@@ -1112,7 +1174,6 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
     _codeController.dispose();
     _dateController.dispose();
     _timeController.dispose();
-    _instructorController.dispose();
     _slotsController.dispose();
     _totalSlotsController.dispose();
     _amountController.dispose();
@@ -1163,6 +1224,16 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (_selectedInstructorId == null ||
+        _selectedInstructorId!.trim().isEmpty) {
+      AppToast.showError(
+        context: context,
+        title: 'Instructor Required',
+        description: 'Please select a valid instructor from the list.',
+      );
+      return;
+    }
+
     setState(() => _isSaving = true);
 
     final slots = int.tryParse(_slotsController.text.trim()) ?? 1;
@@ -1175,7 +1246,9 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
       'scheduleCode': _codeController.text.trim(),
       'date': _dateController.text.trim(),
       'time': _timeController.text.trim(),
-      'instructor': _instructorController.text.trim(),
+      'instructor': _selectedInstructorId!,
+      'instructorId': _selectedInstructorId!,
+      'instructorName': _selectedInstructorName ?? '',
       'slotsAvailable': slots,
       'totalSlots': totalSlots,
       'amount': amount,
@@ -1486,21 +1559,53 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                       // 3. Instructor
                       _buildLabel('Assigned Instructor', isRequired: true),
                       const SizedBox(height: 6),
-                      if (_instructorSuggestions.isNotEmpty)
+                      if (_isLoadingInstructors)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.border),
+                          ),
+                          child: const Row(
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppTheme.primaryDark,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'Loading active instructors...',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppTheme.secondaryText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_instructors.isNotEmpty)
                         DropdownButtonFormField<String>(
                           isExpanded: true,
                           initialValue:
-                              _instructorSuggestions.contains(
-                                _instructorController.text,
+                              _instructors.any(
+                                (i) => i.id == _selectedInstructorId,
                               )
-                              ? _instructorController.text
-                              : (_instructorSuggestions.isNotEmpty
-                                    ? _instructorSuggestions.first
+                              ? _selectedInstructorId
+                              : (_instructors.isNotEmpty
+                                    ? _instructors.first.id
                                     : null),
-                          items: _instructorSuggestions
+                          items: _instructors
                               .map(
-                                (name) => DropdownMenuItem(
-                                  value: name,
+                                (ins) => DropdownMenuItem(
+                                  value: ins.id,
                                   child: Row(
                                     children: [
                                       const Icon(
@@ -1511,10 +1616,29 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          name,
+                                          ins.name.isNotEmpty
+                                              ? ins.name
+                                              : (ins.username.isNotEmpty
+                                                    ? ins.username
+                                                    : 'Instructor (${ins.id})'),
                                           overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                       ),
+                                      if (ins.email.isNotEmpty) ...[
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '(${ins.email})',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppTheme.secondaryText,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -1522,7 +1646,13 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                               .toList(),
                           onChanged: (val) {
                             if (val != null) {
-                              setState(() => _instructorController.text = val);
+                              final matched = _instructors
+                                  .where((i) => i.id == val)
+                                  .firstOrNull;
+                              setState(() {
+                                _selectedInstructorId = val;
+                                _selectedInstructorName = matched?.name ?? '';
+                              });
                             }
                           },
                           decoration: const InputDecoration(
@@ -1534,18 +1664,32 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                               : null,
                         )
                       else
-                        TextFormField(
-                          controller: _instructorController,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(
-                              Icons.person_outline_rounded,
-                              size: 18,
-                            ),
-                            hintText: 'Enter instructor full name',
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.amber.shade200),
                           ),
-                          validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Instructor name is required'
-                              : null,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.amber.shade800,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              const Expanded(
+                                child: Text(
+                                  'No instructors found. Please add instructors first in the Instructors section.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF92400E),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       const SizedBox(height: 16),
 
@@ -1593,11 +1737,13 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                                         ),
                                       ),
                                       validator: (v) {
-                                        if (v == null || v.trim().isEmpty)
+                                        if (v == null || v.trim().isEmpty) {
                                           return 'Required';
+                                        }
                                         final n = int.tryParse(v);
-                                        if (n == null || n < 0)
+                                        if (n == null || n < 0) {
                                           return 'Invalid';
+                                        }
                                         return null;
                                       },
                                     ),
@@ -1668,10 +1814,13 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                                         ),
                                       ),
                                       validator: (v) {
-                                        if (v == null || v.trim().isEmpty)
+                                        if (v == null || v.trim().isEmpty) {
                                           return 'Required';
+                                        }
                                         final n = int.tryParse(v);
-                                        if (n == null || n <= 0) return '> 0';
+                                        if (n == null || n <= 0) {
+                                          return '> 0';
+                                        }
                                         return null;
                                       },
                                     ),
@@ -1751,13 +1900,15 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                                   hintText: '1500.00',
                                 ),
                                 validator: (v) {
-                                  if (v == null || v.trim().isEmpty)
+                                  if (v == null || v.trim().isEmpty) {
                                     return 'Amount required';
+                                  }
                                   final d = double.tryParse(
                                     v.replaceAll(',', ''),
                                   );
-                                  if (d == null || d < 0)
+                                  if (d == null || d < 0) {
                                     return 'Invalid amount';
+                                  }
                                   return null;
                                 },
                               ),
@@ -1803,8 +1954,9 @@ class _ScheduleFormSheetState extends State<_ScheduleFormSheet> {
                                   ),
                                 ],
                                 onChanged: (val) {
-                                  if (val != null)
+                                  if (val != null) {
                                     setState(() => _selectedStatus = val);
+                                  }
                                 },
                                 decoration: const InputDecoration(
                                   prefixIcon: Icon(
@@ -2104,7 +2256,10 @@ class _ScheduleDetailsDialog extends StatelessWidget {
               _buildDetailRow(
                 Icons.badge_outlined,
                 'Instructor',
-                schedule.instructor,
+                schedule.instructorEmail != null &&
+                        schedule.instructorEmail!.isNotEmpty
+                    ? '${schedule.instructor} (${schedule.instructorEmail})'
+                    : schedule.instructor,
               ),
               const SizedBox(height: 12),
               _buildDetailRow(
@@ -2261,6 +2416,7 @@ class _DeleteScheduleDialogState extends State<_DeleteScheduleDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
@@ -2311,7 +2467,10 @@ class _DeleteScheduleDialogState extends State<_DeleteScheduleDialog> {
                     onPressed: _isDeleting
                         ? null
                         : () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                   ElevatedButton.icon(
                     onPressed: _isDeleting ? null : _delete,
@@ -2325,7 +2484,7 @@ class _DeleteScheduleDialogState extends State<_DeleteScheduleDialog> {
                             ),
                           )
                         : const Icon(Icons.delete_rounded, size: 16),
-                    label: const Text('Delete Permanently'),
+                    label: const Text('Delete'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.errorColor,
                       foregroundColor: Colors.white,

@@ -74,8 +74,23 @@ class StudentService {
       if (e.response?.data != null) {
         final data = e.response!.data;
         if (data is Map) {
+          if (data['errors'] is List && (data['errors'] as List).isNotEmpty) {
+            final messages = (data['errors'] as List)
+                .map((item) {
+                  if (item is Map) {
+                    return item['msg']?.toString() ??
+                        item['message']?.toString() ??
+                        item['error']?.toString();
+                  }
+                  return item?.toString();
+                })
+                .where((msg) => msg != null && msg.trim().isNotEmpty)
+                .join(', ');
+            if (messages.isNotEmpty) return messages;
+          }
           return data['message']?.toString() ??
               data['error']?.toString() ??
+              data['msg']?.toString() ??
               'Server error (${e.response?.statusCode})';
         } else if (data is String && data.isNotEmpty) {
           return data;
