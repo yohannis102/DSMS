@@ -47,9 +47,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 2:
         return const InstructorsPage();
       case 3:
-        return const SchedulePage();
-      case 4:
         return const EnrolmentPage();
+      case 4:
+        return const SchedulePage();
       case 5:
         return const PaymentPage();
       case 6:
@@ -146,7 +146,7 @@ class _DashboardContentViewState extends State<DashboardContentView> {
         bgColor: const Color(0xFFDC3545),
         darkerColor: const Color(0xFFC82333),
         icon: Icons.person_add_alt_1,
-        onTap: () => widget.onNavigateToTab?.call(4), // Enrolment
+        onTap: () => widget.onNavigateToTab?.call(3), // Enrolment
       ),
       _MetricCardConfig(
         value: _formatCurrency(_controller.totalIncome),
