@@ -73,15 +73,6 @@ class _InstructorsPageState extends State<InstructorsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openInstructorForm(),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Add Instructor',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: AppTheme.primaryDark,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
         child: Column(
@@ -438,6 +429,29 @@ class _InstructorsPageState extends State<InstructorsPage> {
     }
 
     return ScrollableTableWrapper(
+      headerLeading: ElevatedButton.icon(
+        onPressed: () => _openInstructorForm(),
+        icon: const Icon(Icons.add, size: 16, color: Colors.white),
+        label: const Text(
+          'Add Instructor',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.primaryDark,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+          elevation: 0,
+        ),
+      ),
       child: DataTable(
         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
         dataRowMinHeight: 52,
@@ -865,7 +879,8 @@ class _InstructorFormSheetState extends State<_InstructorFormSheet> {
                     // Profile Image Picker (Camera / Gallery Upload)
                     ProfileImagePicker(
                       initialImage: _profilePictureController.text,
-                      name: '${_firstNameController.text} ${_lastNameController.text}',
+                      name:
+                          '${_firstNameController.text} ${_lastNameController.text}',
                       onImageChanged: (val) {
                         setState(() {
                           _profilePictureController.text = val ?? '';

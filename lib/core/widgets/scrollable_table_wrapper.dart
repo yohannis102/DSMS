@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 /// left and right navigation arrow buttons, gradient indicators, and a scrollbar.
 class ScrollableTableWrapper extends StatefulWidget {
   final Widget child;
+  final Widget? headerLeading;
   final double scrollStep;
   final Duration animationDuration;
   final Curve animationCurve;
@@ -14,6 +15,7 @@ class ScrollableTableWrapper extends StatefulWidget {
   const ScrollableTableWrapper({
     super.key,
     required this.child,
+    this.headerLeading,
     this.scrollStep = 280.0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.animationCurve = Curves.easeOutCubic,
@@ -101,8 +103,14 @@ class _ScrollableTableWrapperState extends State<ScrollableTableWrapper> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Left side action button / widget (beside scroll controls)
+                  if (widget.headerLeading != null)
+                    widget.headerLeading!
+                  else
+                    const SizedBox.shrink(),
+
                   // Right: Interactive Top Scroll Buttons (Left & Right Arrows)
                   Container(
                     alignment: Alignment.centerRight,

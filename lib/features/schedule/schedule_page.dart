@@ -85,15 +85,6 @@ class _SchedulePageState extends State<SchedulePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openScheduleForm(),
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text(
-          'Add Schedule',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: AppTheme.primaryDark,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
@@ -608,6 +599,29 @@ class _SchedulePageState extends State<SchedulePage> {
     }
 
     return ScrollableTableWrapper(
+      headerLeading: ElevatedButton.icon(
+        onPressed: () => _openScheduleForm(),
+        icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+        label: const Text(
+          'Add Schedule',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.primaryDark,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          ),
+          elevation: 0,
+        ),
+      ),
       child: DataTable(
         headingRowColor: WidgetStateProperty.all(const Color(0xFFF1F5F9)),
         dataRowMinHeight: 56,
