@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSMS - User Documentation V1.0</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for Rendering Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      flowchart: {
+        curve: 'basis',
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --tag-bg: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--surface);
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    /* Print / Export Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--tag-bg);
+      color: var(--primary);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-print:hover {
+      background: var(--primary-dark);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 40px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Diagram Card */
+    .diagram-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 24px 0;
+      display: flex;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+    }
+
+    .mermaid {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background-color: var(--code-bg);
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+
+    .field-tag {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin: 2px;
+      font-family: monospace;
+    }
+
+    /* Note Banner */
+    .note-box {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+      color: #166534;
+      font-size: 0.95rem;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .container {
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      .action-bar {
+        display: none;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .diagram-card {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Action Bar -->
+    <div class="action-bar">
+      <div>
+        <span class="badge">User Documentation V1.0</span>
+        <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 8px;">Driving School Management System (DSMS)</span>
+      </div>
+      <button class="btn-print" onclick="window.print()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+        Save / Export as PDF
+      </button>
+    </div>
+
+    <!-- Header Section -->
+    <h1>DSMS - Admin User Guide & Operational Flow</h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted);">Comprehensive Administrator Manual, Module Field Specifications, and Operational Workflow Architecture.</p>
+
+    <hr style="border: 0; height: 1px; background: var(--border); margin: 24px 0;" />
+
+    <!-- PART 1: ADMIN MANUAL & MODULE SPECIFICATIONS -->
+    <h2>Part 1: Admin Operational Manual & Module Specifications</h2>
+
+    <h3>1. Getting Started & Authentication</h3>
+    <p>The Driving School Management System (DSMS) provides administrators with a centralized control center to manage student accounts, instructor assignments, driving session scheduling, package offerings, and payment processing.</p>
+    
+    <ul>
+      <li><strong>App Access:</strong> Open the application to reach the Sign In screen.</li>
+      <li><strong>Authentication:</strong> Sign in with your registered administrator email address and password. Enable <em>Remember Me</em> to maintain an active session across launches.</li>
+      <li><strong>Password Reset:</strong> In case of forgotten credentials, tap <em>Forgot Password</em>, enter your registered email, verify the OTP code, and set a new secure password.</li>
+    </ul>
+
+    <h3>2. Admin Dashboard Modules & Form Input Fields</h3>
+    <p>The system is organized into seven core tabs accessible from the navigation bar:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 8%;">Tab</th>
+          <th style="width: 22%;">Module</th>
+          <th style="width: 35%;">Admin Responsibilities</th>
+          <th style="width: 35%;">Model Input Fields</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>0</strong></td>
+          <td><strong>Overview Dashboard</strong></td>
+          <td>Real-time KPI monitoring, active student counts, weekly lesson charts, quick navigation, and revenue stats.</td>
+          <td><em>Aggregated metrics (Total Students, Active Instructors, Open Schedules, Recent Payments).</em></td>
+        </tr>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>Students</strong></td>
+          <td>Create student user accounts, manage student profile & identity information, assign login usernames, and manage account statuses.</td>
+          <td>
+            <span class="field-tag">firstName</span>
+            <span class="field-tag">middleName</span>
+            <span class="field-tag">lastName</span>
+            <span class="field-tag">username</span>
+            <span class="field-tag">email</span>
+            <span class="field-tag">contact / phone</span>
+            <span class="field-tag">gender</span>
+            <span class="field-tag">birthdate</span>
+            <span class="field-tag">address</span>
+            <span class="field-tag">accountStatus</span>
+            <span class="field-tag">role (student)</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td><strong>Instructors</strong></td>
+          <td>Provision instructor staff accounts, assign vehicle transmission types, specify years of driving experience, and monitor teaching load.</td>
+          <td>
+            <span class="field-tag">firstName</span>
+            <span class="field-tag">middleName</span>
+            <span class="field-tag">lastName</span>
+            <span class="field-tag">username</span>
+            <span class="field-tag">email</span>
+            <span class="field-tag">contact / phone</span>
+            <span class="field-tag">gender</span>
+            <span class="field-tag">birthdate</span>
+            <span class="field-tag">address</span>
+            <span class="field-tag">drivingExperience</span>
+            <span class="field-tag">vehicleType (Manual/Auto)</span>
+            <span class="field-tag">accountStatus</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td><strong>Enrolments</strong></td>
+          <td>Register students into training course packages, track start dates, and update course payment status.</td>
+          <td>
+            <span class="field-tag">enrolmentId</span>
+            <span class="field-tag">studentName</span>
+            <span class="field-tag">packageName</span>
+            <span class="field-tag">enrolmentDate</span>
+            <span class="field-tag">paymentStatus (Paid/Pending)</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td><strong>Schedules</strong></td>
+          <td>Create driving training sessions, assign instructors, set available seat slots, and track session completion.</td>
+          <td>
+            <span class="field-tag">scheduleCode</span>
+            <span class="field-tag">date</span>
+            <span class="field-tag">time (e.g. 09:00 - 11:00 AM)</span>
+            <span class="field-tag">instructor / instructorId</span>
+            <span class="field-tag">slotsAvailable</span>
+            <span class="field-tag">totalSlots</span>
+            <span class="field-tag">amount</span>
+            <span class="field-tag">remarks</span>
+            <span class="field-tag">status (Available/Booked/Cancelled)</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>5</strong></td>
+          <td><strong>Payments</strong></td>
+          <td>Record payment transactions, issue digital receipts, and track student payment balances.</td>
+          <td>
+            <span class="field-tag">transactionId</span>
+            <span class="field-tag">studentName</span>
+            <span class="field-tag">amount</span>
+            <span class="field-tag">date</span>
+            <span class="field-tag">method (Cash/Bank Transfer/Card)</span>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>6</strong></td>
+          <td><strong>Packages</strong></td>
+          <td>Define driving course packages, syllabus descriptions, duration, and course fees.</td>
+          <td>
+            <span class="field-tag">name / packageName</span>
+            <span class="field-tag">description</span>
+            <span class="field-tag">price</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-break"></div>
+
+    <!-- PART 2: ADMIN USER FLOWS -->
+    <h2>Part 2: Visual Admin Operational Flows</h2>
+    <p>The diagrams below illustrate the system navigation and complete administrative lifecycle.</p>
+
+    <!-- Flow 1 -->
+    <h3>2.1 Admin Authentication & Navigation Flow</h3>
+    <p>Application entry point, session validation, authentication gate, and dashboard module routing:</p>
+    <div class="diagram-card">
+      <div class="mermaid">
+flowchart TD
+    Start([Launch DSMS App]) --> AppGate{AppGate Check}
+    
+    AppGate -->|First Time Launch| Onboarding[Onboarding Slides]
+    Onboarding --> AuthPage[Sign In Screen]
+    
+    AppGate -->|Remember Me Active| Dashboard[Admin Dashboard]
+    AppGate -->|Not Logged In| AuthPage
+    
+    AuthPage --> Login[Enter Registered Email & Password]
+    AuthPage --> ForgotPass[Forgot Password / Reset OTP]
+    ForgotPass --> ResetSuccess[Password Updated] --> Login
+    
+    Login --> AuthSuccess{Authenticated?}
+    AuthSuccess -->|Yes| Dashboard
+    AuthSuccess -->|No| ErrorPrompt[Display Error Notification]
+    ErrorPrompt --> Login
+
+    subgraph NavigationTabs [Admin Dashboard Modules]
+        Dashboard --> Tab0[0. Overview Dashboard]
+        Dashboard --> Tab1[1. Students Management]
+        Dashboard --> Tab2[2. Instructors Management]
+        Dashboard --> Tab3[3. Course Enrolments]
+        Dashboard --> Tab4[4. Schedules & Slots]
+        Dashboard --> Tab5[5. Payment & Invoicing]
+        Dashboard --> Tab6[6. Training Packages]
+    end
+      </div>
+    </div>
+
+    <!-- Flow 2 -->
+    <h3>2.2 Complete Admin Operational Lifecycle Flow</h3>
+    <p>The primary administrative management lifecycle for setting up curriculum, provisioning user accounts, scheduling sessions, and collecting fees:</p>
+    <div class="diagram-card">
+      <div class="mermaid">
+flowchart TD
+    AdminLogin([Admin Signed In]) --> AdminDashboard[Access Admin Dashboard]
+    
+    AdminDashboard --> Step1[1. Create / Configure Training Packages]
+    Step1 --> Step2[2. Provision Instructor Account & Assign Vehicle]
+    Step2 --> Step3[3. Create Student Account & Profile Details]
+    
+    Step3 --> Step4[4. Enrol Student into Training Package]
+    Step4 --> Step5[5. Schedule Driving Training Slots]
+    
+    Step5 --> Step6[6. Record Payment & Issue Receipt]
+    Step6 --> Step7[7. Mark Completed Sessions & Review Analytics on Dashboard]
+    
+    Step7 --> End([Operational Cycle Complete])
+      </div>
+  </div>
+
+</body>
+</html>
