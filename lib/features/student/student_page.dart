@@ -62,10 +62,8 @@ class _StudentPageState extends State<StudentPage> {
   void _confirmDelete(StudentModel student) {
     showDialog(
       context: context,
-      builder: (ctx) => _DeleteStudentDialog(
-        student: student,
-        controller: _controller,
-      ),
+      builder: (ctx) =>
+          _DeleteStudentDialog(student: student, controller: _controller),
     );
   }
 
@@ -385,9 +383,7 @@ class _StudentPageState extends State<StudentPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                isFiltered
-                    ? Icons.search_off_outlined
-                    : Icons.people_outline,
+                isFiltered ? Icons.search_off_outlined : Icons.people_outline,
                 size: 48,
                 color: AppTheme.secondaryText,
               ),
@@ -446,9 +442,7 @@ class _StudentPageState extends State<StudentPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           elevation: 0,
         ),
       ),
@@ -595,10 +589,7 @@ class _StudentDetailsDialog extends StatelessWidget {
   final StudentModel student;
   final VoidCallback onEdit;
 
-  const _StudentDetailsDialog({
-    required this.student,
-    required this.onEdit,
-  });
+  const _StudentDetailsDialog({required this.student, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -722,7 +713,10 @@ class _StudentDetailsDialog extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(
@@ -1027,7 +1021,8 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                     // Profile Image Picker (Camera / Gallery Upload)
                     ProfileImagePicker(
                       initialImage: _profilePictureController.text,
-                      name: '${_firstNameController.text} ${_lastNameController.text}',
+                      name:
+                          '${_firstNameController.text} ${_lastNameController.text}',
                       onImageChanged: (val) {
                         setState(() {
                           _profilePictureController.text = val ?? '';
@@ -1260,7 +1255,10 @@ class _StudentFormSheetState extends State<_StudentFormSheet> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text('Cancel'),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         ElevatedButton(
@@ -1366,7 +1364,7 @@ class _DeleteStudentDialogState extends State<_DeleteStudentDialog> {
             foregroundColor: Colors.black,
             side: const BorderSide(color: Color(0xFFCBD5E1)),
           ),
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(color: Colors.black)),
         ),
         ElevatedButton(
           onPressed: _isDeleting ? null : _handleDelete,
@@ -1375,15 +1373,15 @@ class _DeleteStudentDialogState extends State<_DeleteStudentDialog> {
             foregroundColor: Colors.white,
           ),
           child: _isDeleting
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Text('Delete'),
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('Delete'),
         ),
       ],
     );
