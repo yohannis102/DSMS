@@ -281,12 +281,16 @@ class EnrolmentModel {
   String get formattedAmount {
     final amt = amount;
     if (amt <= 0) return 'Free';
-    final parts = amt.toStringAsFixed(2).split('.');
+    final hasDecimals = amt % 1 != 0;
+    final formattedNum = hasDecimals ? amt.toStringAsFixed(2) : amt.toStringAsFixed(0);
+    final parts = formattedNum.split('.');
     final integerPart = parts[0];
-    final decimalPart = parts[1];
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     final formattedInt = integerPart.replaceAllMapped(reg, (Match m) => '${m[1]},');
-    return 'ETB $formattedInt.$decimalPart';
+    if (parts.length > 1) {
+      return 'ETB $formattedInt.${parts[1]}';
+    }
+    return 'ETB $formattedInt';
   }
 
   String get enrolmentDate {

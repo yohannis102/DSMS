@@ -225,8 +225,20 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
   Widget _buildMetricCards() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 700;
-        final count = isCompact ? 2 : 4;
+        final screenWidth = constraints.maxWidth;
+        int count = 4;
+        double ratio = 2.4;
+
+        if (screenWidth < 480) {
+          count = 2;
+          ratio = 1.95;
+        } else if (screenWidth < 768) {
+          count = 2;
+          ratio = 2.3;
+        } else if (screenWidth < 1100) {
+          count = 4;
+          ratio = 2.0;
+        }
 
         final items = [
           _MetricCardData(
@@ -264,18 +276,18 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: count,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: isCompact ? 1.9 : 2.2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: ratio,
           ),
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
             return Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppTheme.border),
                 boxShadow: const [
                   BoxShadow(
@@ -288,38 +300,43 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
               child: Row(
                 children: [
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 38,
+                    height: 38,
                     decoration: BoxDecoration(
                       color: item.bgColor,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(item.icon, color: item.color, size: 22),
+                    child: Icon(item.icon, color: item.color, size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           item.title,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: AppTheme.secondaryText,
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          item.value,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.darkText,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            item.value,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.darkText,
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -1510,7 +1527,10 @@ class _EnrollmentFormSheetState extends State<_EnrollmentFormSheet> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.secondaryColor,
+                              ),
                             )
                           : Text(
                               widget.enrolment == null
@@ -1855,7 +1875,7 @@ class _DeleteEnrollmentDialogState extends State<_DeleteEnrollmentDialog> {
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: AppTheme.secondaryColor,
                   ),
                 )
               : const Text('Cancel Enrollment'),

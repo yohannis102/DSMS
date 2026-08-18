@@ -122,12 +122,19 @@ class EnrolmentController extends ChangeNotifier {
       _enrolments.fold(0.0, (sum, e) => sum + e.amount);
 
   String get formattedTotalRevenue {
-    final parts = totalRevenue.toStringAsFixed(2).split('.');
+    if (totalRevenue <= 0) return 'ETB 0';
+    final hasDecimals = totalRevenue % 1 != 0;
+    final formattedNum = hasDecimals
+        ? totalRevenue.toStringAsFixed(2)
+        : totalRevenue.toStringAsFixed(0);
+    final parts = formattedNum.split('.');
     final integerPart = parts[0];
-    final decimalPart = parts[1];
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     final formattedInt = integerPart.replaceAllMapped(reg, (Match m) => '${m[1]},');
-    return 'ETB $formattedInt.$decimalPart';
+    if (parts.length > 1) {
+      return 'ETB $formattedInt.${parts[1]}';
+    }
+    return 'ETB $formattedInt';
   }
 
   Future<void> loadEnrolments() async {
