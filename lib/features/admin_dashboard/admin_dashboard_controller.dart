@@ -11,27 +11,47 @@ class AdminDashboardController extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  AdminDashboardModel? _dashboardData;
-  AdminDashboardModel? get dashboardData => _dashboardData;
+  AdminDashboardData? _dashboardData;
+  AdminDashboardData? get dashboardData => _dashboardData;
 
-  int get instructorCount => _dashboardData?.instructorCount ?? 8;
-  int get studentCount => _dashboardData?.studentCount ?? 20;
-  int get enrolmentCount => _dashboardData?.enrolmentCount ?? 15;
-  double get totalIncome => _dashboardData?.totalIncome ?? 20000.0;
-  List<MonthlyIncomeData> get monthlyIncomeData =>
-      _dashboardData?.monthlyIncomeData ?? [];
+  DashboardStats get stats =>
+      _dashboardData?.stats ?? const DashboardStats();
+
+  int get instructorCount => stats.instructorCount;
+  int get studentCount => stats.studentCount;
+  int get enrollmentCount => stats.enrollmentCount;
+  double get totalIncome => stats.totalIncome;
+
+  List<PaymentStatusBreakdown> get paymentBreakdown =>
+      _dashboardData?.paymentBreakdown ?? [];
+
+  List<MonthlyIncome> get monthlyIncome =>
+      _dashboardData?.monthlyIncome ?? [];
+
+  List<MonthlyEnrollment> get monthlyEnrollments =>
+      _dashboardData?.monthlyEnrollments ?? [];
+
+  List<PackagePopularity> get packagePopularity =>
+      _dashboardData?.packagePopularity ?? [];
+
+  List<InstructorWorkload> get instructorWorkload =>
+      _dashboardData?.instructorWorkload ?? [];
+
+  List<RecentPayment> get recentPayments =>
+      _dashboardData?.recentPayments ?? [];
 
   AdminDashboardController() {
     loadDashboard();
   }
 
-  Future<void> loadDashboard() async {
+  Future<void> loadDashboard({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _dashboardData = await _service.getDashboardSummary();
+      _dashboardData =
+          await _service.getDashboardData(forceRefresh: forceRefresh);
     } catch (e) {
       _errorMessage = 'Failed to load dashboard data: $e';
     } finally {
@@ -41,6 +61,6 @@ class AdminDashboardController extends ChangeNotifier {
   }
 
   void refreshData() {
-    loadDashboard();
+    loadDashboard(forceRefresh: true);
   }
 }
