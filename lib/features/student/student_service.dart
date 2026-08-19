@@ -40,7 +40,9 @@ class StudentService {
   }
 
   Future<StudentModel> updateStudent(
-      String id, Map<String, dynamic> studentData) async {
+    String id,
+    Map<String, dynamic> studentData,
+  ) async {
     Response response;
     try {
       response = await _dio.put('/api/students/$id', data: studentData);
@@ -101,4 +103,3 @@ class StudentService {
     return e.toString();
   }
 }
-

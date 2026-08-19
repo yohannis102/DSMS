@@ -446,9 +446,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
           elevation: 0,
         ),
       ),
@@ -1322,7 +1320,10 @@ class _InstructorDetailsDialog extends StatelessWidget {
               children: [
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(color: AppTheme.darkText),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton.icon(

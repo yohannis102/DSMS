@@ -1843,6 +1843,7 @@ class _DeleteEnrollmentDialogState extends State<_DeleteEnrollmentDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       title: Row(
         children: const [
@@ -1861,7 +1862,7 @@ class _DeleteEnrollmentDialogState extends State<_DeleteEnrollmentDialog> {
       actions: [
         TextButton(
           onPressed: _isDeleting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Keep'),
+          child: const Text('Keep', style: TextStyle(color: Colors.black)),
         ),
         ElevatedButton(
           onPressed: _isDeleting ? null : _delete,
