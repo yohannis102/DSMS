@@ -5,22 +5,24 @@ import 'instructors_model.dart';
 class InstructorsService {
   final Dio _dio = ApiClient().dio;
 
-  Future<List<InstructorsModel>> fetchInstructors() async {
+  Future<List<InstructorsModel>> fetchInstructors({bool forceRefresh = false}) async {
     Response response;
+    final options = ApiClient().cacheOptions(forceRefresh: forceRefresh);
     try {
-      response = await _dio.get('/api/instructors');
+      response = await _dio.get('/api/instructors', options: options);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        response = await _dio.get('/instructors');
+        response = await _dio.get('/instructors', options: options);
       } else {
         rethrow;
       }
     }
 
-    if (response.statusCode == 200 && response.data != null) {
-      final dynamic data = response.data;
+    if ((response.statusCode == 200 || response.statusCode == 304) &&
+        response.data != null) {
+      final dynamic data = ApiClient.parseResponseData(response.data);
       List<dynamic> list = [];
-      if (data is Map<String, dynamic>) {
+      if (data is Map) {
         if (data['instructors'] is List) {
           list = data['instructors'] as List<dynamic>;
         } else if (data['data'] is List) {
@@ -30,7 +32,8 @@ class InstructorsService {
         list = data;
       }
       return list
-          .map((e) => InstructorsModel.fromJson(e as Map<String, dynamic>))
+          .whereType<Map>()
+          .map((e) => InstructorsModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
     return [];

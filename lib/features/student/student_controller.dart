@@ -62,13 +62,13 @@ class StudentController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadStudents() async {
+  Future<void> loadStudents({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _students = await _service.fetchStudents();
+      _students = await _service.fetchStudents(forceRefresh: forceRefresh);
     } catch (e) {
       _errorMessage = _service.extractErrorMessage(e);
       _students = [];

@@ -117,28 +117,30 @@ class EnrolmentService {
     ),
   ];
 
-  Future<List<EnrolmentModel>> fetchEnrolments() async {
+  Future<List<EnrolmentModel>> fetchEnrolments({bool forceRefresh = false}) async {
     Response? response;
+    final options = ApiClient().cacheOptions(forceRefresh: forceRefresh);
     try {
       try {
-        response = await _dio.get('/api/enrollments');
+        response = await _dio.get('/api/enrollments', options: options);
       } on DioException catch (e) {
         if (e.response?.statusCode == 404) {
           try {
-            response = await _dio.get('/api/enrolments');
+            response = await _dio.get('/api/enrolments', options: options);
           } on DioException {
-            response = await _dio.get('/enrollments');
+            response = await _dio.get('/enrollments', options: options);
           }
         } else {
           rethrow;
         }
       }
 
-      if (response.statusCode == 200 && response.data != null) {
+      if ((response.statusCode == 200 || response.statusCode == 304) &&
+          response.data != null) {
         ApiClient().setMockMode(false);
-        final dynamic data = response.data;
+        final dynamic data = ApiClient.parseResponseData(response.data);
         List<dynamic> list = [];
-        if (data is Map<String, dynamic>) {
+        if (data is Map) {
           if (data['enrollments'] is List) {
             list = data['enrollments'] as List<dynamic>;
           } else if (data['enrolments'] is List) {
@@ -150,7 +152,8 @@ class EnrolmentService {
           list = data;
         }
         return list
-            .map((e) => EnrolmentModel.fromJson(e as Map<String, dynamic>))
+            .whereType<Map>()
+            .map((e) => EnrolmentModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
     } catch (_) {

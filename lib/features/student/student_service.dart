@@ -5,20 +5,27 @@ import 'student_model.dart';
 class StudentService {
   final Dio _dio = ApiClient().dio;
 
-  Future<List<StudentModel>> fetchStudents() async {
-    final response = await _dio.get('/api/students');
-    if (response.statusCode == 200 && response.data != null) {
-      final dynamic data = response.data;
+  Future<List<StudentModel>> fetchStudents({bool forceRefresh = false}) async {
+    final response = await _dio.get(
+      '/api/students',
+      options: ApiClient().cacheOptions(forceRefresh: forceRefresh),
+    );
+    if ((response.statusCode == 200 || response.statusCode == 304) &&
+        response.data != null) {
+      final dynamic data = ApiClient.parseResponseData(response.data);
       List<dynamic> list = [];
-      if (data is Map<String, dynamic>) {
+      if (data is Map) {
         if (data['students'] is List) {
           list = data['students'] as List<dynamic>;
+        } else if (data['data'] is List) {
+          list = data['data'] as List<dynamic>;
         }
       } else if (data is List) {
         list = data;
       }
       return list
-          .map((e) => StudentModel.fromJson(e as Map<String, dynamic>))
+          .whereType<Map>()
+          .map((e) => StudentModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
     return [];
@@ -28,12 +35,13 @@ class StudentService {
     final response = await _dio.post('/api/students', data: studentData);
     if ((response.statusCode == 200 || response.statusCode == 201) &&
         response.data != null) {
-      final dynamic data = response.data;
-      if (data is Map<String, dynamic>) {
-        if (data['student'] is Map<String, dynamic>) {
-          return StudentModel.fromJson(data['student'] as Map<String, dynamic>);
+      final dynamic data = ApiClient.parseResponseData(response.data);
+      if (data is Map) {
+        if (data['student'] is Map) {
+          return StudentModel.fromJson(
+              Map<String, dynamic>.from(data['student'] as Map));
         }
-        return StudentModel.fromJson(data);
+        return StudentModel.fromJson(Map<String, dynamic>.from(data));
       }
     }
     return StudentModel.fromJson(studentData);
@@ -54,13 +62,15 @@ class StudentService {
       }
     }
 
-    if (response.statusCode == 200 && response.data != null) {
-      final dynamic data = response.data;
-      if (data is Map<String, dynamic>) {
-        if (data['student'] is Map<String, dynamic>) {
-          return StudentModel.fromJson(data['student'] as Map<String, dynamic>);
+    if ((response.statusCode == 200 || response.statusCode == 201) &&
+        response.data != null) {
+      final dynamic data = ApiClient.parseResponseData(response.data);
+      if (data is Map) {
+        if (data['student'] is Map) {
+          return StudentModel.fromJson(
+              Map<String, dynamic>.from(data['student'] as Map));
         }
-        return StudentModel.fromJson(data);
+        return StudentModel.fromJson(Map<String, dynamic>.from(data));
       }
     }
     return StudentModel.fromJson(studentData);

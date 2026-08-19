@@ -98,7 +98,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
                   IconButton(
                     onPressed: _controller.isLoading
                         ? null
-                        : () => _controller.loadInstructors(),
+                        : () => _controller.loadInstructors(forceRefresh: true),
                     icon: const Icon(
                       Icons.refresh,
                       color: AppTheme.primaryDark,
@@ -357,7 +357,7 @@ class _InstructorsPageState extends State<InstructorsPage> {
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () => _controller.loadInstructors(),
+                onPressed: () => _controller.loadInstructors(forceRefresh: true),
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('Retry Request'),
                 style: ElevatedButton.styleFrom(

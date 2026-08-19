@@ -5,13 +5,30 @@ import 'payment_model.dart';
 class PaymentService {
   final Dio _dio = ApiClient().dio;
 
-  Future<List<PaymentModel>> fetchPayments() async {
+  Future<List<PaymentModel>> fetchPayments({bool forceRefresh = false}) async {
     try {
-      final response = await _dio.get('/payments');
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _dio.get(
+        '/payments',
+        options: ApiClient().cacheOptions(forceRefresh: forceRefresh),
+      );
+      if ((response.statusCode == 200 || response.statusCode == 304) &&
+          response.data != null) {
         ApiClient().setMockMode(false);
-        final list = response.data as List<dynamic>;
-        return list.map((e) => PaymentModel.fromJson(e)).toList();
+        final dynamic data = ApiClient.parseResponseData(response.data);
+        List<dynamic> list = [];
+        if (data is Map) {
+          if (data['payments'] is List) {
+            list = data['payments'] as List<dynamic>;
+          } else if (data['data'] is List) {
+            list = data['data'] as List<dynamic>;
+          }
+        } else if (data is List) {
+          list = data;
+        }
+        return list
+            .whereType<Map>()
+            .map((e) => PaymentModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
       }
     } catch (_) {
       ApiClient().setMockMode(true);

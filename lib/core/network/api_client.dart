@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +10,8 @@ class ApiClient {
   factory ApiClient() => _instance;
 
   late final Dio dio;
+  late final MemCacheStore cacheStore;
+  late final CacheOptions defaultCacheOptions;
   bool isServerAvailable = false;
   final ValueNotifier<bool> isMockMode = ValueNotifier<bool>(true);
 
@@ -26,6 +30,23 @@ class ApiClient {
   final Map<String, String> _inMemoryCache = {};
 
   ApiClient._internal() {
+    // 1. Initialize in-memory cache store (10MB capacity)
+    cacheStore = MemCacheStore(
+      maxSize: 10485760, // 10MB
+      maxEntrySize: 1048576, // 1MB per entry
+    );
+
+    // 2. Configure default caching rules:
+    // Using CachePolicy.forceCache serves cached data directly from RAM with 0 network calls
+    defaultCacheOptions = CacheOptions(
+      store: cacheStore,
+      policy: CachePolicy.forceCache,
+      hitCacheOnErrorExcept: [401, 403, 404],
+      maxStale: const Duration(minutes: 5),
+      priority: CachePriority.normal,
+      allowPostMethod: false,
+    );
+
     dio = Dio(
       BaseOptions(
         baseUrl: 'http://192.168.100.34:5000',
@@ -35,17 +56,32 @@ class ApiClient {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        validateStatus: (status) =>
+            status != null && ((status >= 200 && status < 300) || status == 304),
       ),
     );
 
-    // Interceptors setup
+    // 3. Attach cache interceptor FIRST so GET responses are cached and served instantly
+    dio.interceptors.add(DioCacheInterceptor(options: defaultCacheOptions));
+
+    // 4. Interceptors setup for logging, auth, cache JSON decoding, and cache invalidation on mutations
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Attach auth headers or tokens here in the future
+          // Attach auth headers or tokens here if needed
           return handler.next(options);
         },
         onResponse: (response, handler) {
+          // Ensure cached data (string/bytes) is parsed to JSON Map/List
+          if (response.data != null) {
+            response.data = parseResponseData(response.data);
+          }
+
+          // Invalidate cache when data is modified via POST, PUT, PATCH, DELETE
+          final method = response.requestOptions.method.toUpperCase();
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].contains(method)) {
+            clearCache();
+          }
           return handler.next(response);
         },
         onError: (DioException e, handler) {
@@ -56,6 +92,58 @@ class ApiClient {
 
     // Load persisted token on init
     initToken();
+  }
+
+  /// Parses raw response data (`String`, `List<int>`, `Map`, `List`) into JSON structure
+  static dynamic parseResponseData(dynamic data) {
+    if (data == null) return null;
+    if (data is Map || data is List) return data;
+    if (data is String) {
+      final trimmed = data.trim();
+      if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+          (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+        try {
+          return jsonDecode(trimmed);
+        } catch (_) {
+          return data;
+        }
+      }
+      return data;
+    }
+    if (data is List<int>) {
+      try {
+        final decoded = utf8.decode(data);
+        return parseResponseData(decoded);
+      } catch (_) {
+        return data;
+      }
+    }
+    return data;
+  }
+
+  /// Create custom Dio Options for caching or force-refreshing
+  Options cacheOptions({
+    Duration? maxStale,
+    CachePolicy? policy,
+    bool forceRefresh = false,
+  }) {
+    final chosenPolicy = forceRefresh
+        ? CachePolicy.refresh
+        : (policy ?? CachePolicy.forceCache);
+
+    return defaultCacheOptions
+        .copyWith(
+          policy: chosenPolicy,
+          maxStale: Nullable(maxStale ?? const Duration(minutes: 5)),
+        )
+        .toOptions();
+  }
+
+  /// Clears all cached HTTP responses
+  Future<void> clearCache() async {
+    try {
+      await cacheStore.clean();
+    } catch (_) {}
   }
 
   /// Load stored auth token on startup and attach to Dio headers
@@ -130,6 +218,7 @@ class ApiClient {
     dio.options.headers.remove('Authorization');
     _inMemoryCache.remove(_tokenKey);
     _inMemoryCache.remove(_refreshTokenKey);
+    await clearCache();
     try {
       await _storage.delete(key: _tokenKey);
     } catch (_) {}

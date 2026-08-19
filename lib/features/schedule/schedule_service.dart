@@ -87,24 +87,26 @@ class ScheduleService {
     return code;
   }
 
-  Future<List<ScheduleModel>> fetchSchedules() async {
+  Future<List<ScheduleModel>> fetchSchedules({bool forceRefresh = false}) async {
     Response? response;
+    final options = ApiClient().cacheOptions(forceRefresh: forceRefresh);
     try {
       try {
-        response = await _dio.get('/api/schedules');
+        response = await _dio.get('/api/schedules', options: options);
       } on DioException catch (e) {
         if (e.response?.statusCode == 404) {
-          response = await _dio.get('/schedules');
+          response = await _dio.get('/schedules', options: options);
         } else {
           rethrow;
         }
       }
 
-      if (response.statusCode == 200 && response.data != null) {
+      if ((response.statusCode == 200 || response.statusCode == 304) &&
+          response.data != null) {
         ApiClient().setMockMode(false);
-        final dynamic data = response.data;
+        final dynamic data = ApiClient.parseResponseData(response.data);
         List<dynamic> list = [];
-        if (data is Map<String, dynamic>) {
+        if (data is Map) {
           if (data['schedules'] is List) {
             list = data['schedules'] as List<dynamic>;
           } else if (data['data'] is List) {
@@ -114,7 +116,8 @@ class ScheduleService {
           list = data;
         }
         return list
-            .map((e) => ScheduleModel.fromJson(e as Map<String, dynamic>))
+            .whereType<Map>()
+            .map((e) => ScheduleModel.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
     } catch (_) {

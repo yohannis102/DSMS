@@ -5,13 +5,20 @@ import 'admin_dashboard_model.dart';
 class AdminDashboardService {
   final Dio _dio = ApiClient().dio;
 
-  Future<AdminDashboardModel> getDashboardSummary() async {
+  Future<AdminDashboardModel> getDashboardSummary({bool forceRefresh = false}) async {
     try {
       // Endpoint attempt
-      final response = await _dio.get('/admin/dashboard/summary');
-      if (response.statusCode == 200 && response.data != null) {
+      final response = await _dio.get(
+        '/admin/dashboard/summary',
+        options: ApiClient().cacheOptions(forceRefresh: forceRefresh),
+      );
+      if ((response.statusCode == 200 || response.statusCode == 304) &&
+          response.data != null) {
         ApiClient().setMockMode(false);
-        return AdminDashboardModel.fromJson(response.data);
+        final dynamic data = ApiClient.parseResponseData(response.data);
+        if (data is Map) {
+          return AdminDashboardModel.fromJson(Map<String, dynamic>.from(data));
+        }
       }
     } catch (_) {
       ApiClient().setMockMode(true);

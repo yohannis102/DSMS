@@ -5,23 +5,25 @@ import 'package_model.dart';
 class PackageService {
   final Dio _dio = ApiClient().dio;
 
-  Future<List<PackageModel>> fetchPackages() async {
+  Future<List<PackageModel>> fetchPackages({bool forceRefresh = false}) async {
     Response response;
+    final options = ApiClient().cacheOptions(forceRefresh: forceRefresh);
     try {
-      response = await _dio.get('/api/packages');
+      response = await _dio.get('/api/packages', options: options);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        response = await _dio.get('/packages');
+        response = await _dio.get('/packages', options: options);
       } else {
         rethrow;
       }
     }
 
-    if (response.statusCode == 200 && response.data != null) {
+    if ((response.statusCode == 200 || response.statusCode == 304) &&
+        response.data != null) {
       ApiClient().setMockMode(false);
-      final dynamic data = response.data;
+      final dynamic data = ApiClient.parseResponseData(response.data);
       List<dynamic> list = [];
-      if (data is Map<String, dynamic>) {
+      if (data is Map) {
         if (data['packages'] is List) {
           list = data['packages'] as List<dynamic>;
         } else if (data['data'] is List) {
@@ -31,7 +33,8 @@ class PackageService {
         list = data;
       }
       return list
-          .map((e) => PackageModel.fromJson(e as Map<String, dynamic>))
+          .whereType<Map>()
+          .map((e) => PackageModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     }
     return [];

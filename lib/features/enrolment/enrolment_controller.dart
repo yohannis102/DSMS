@@ -137,13 +137,13 @@ class EnrolmentController extends ChangeNotifier {
     return 'ETB $formattedInt';
   }
 
-  Future<void> loadEnrolments() async {
+  Future<void> loadEnrolments({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _enrolments = await _service.fetchEnrolments();
+      _enrolments = await _service.fetchEnrolments(forceRefresh: forceRefresh);
       // Reset to first page if page is out of bounds
       if (_currentPage > totalPages) {
         _currentPage = 1;

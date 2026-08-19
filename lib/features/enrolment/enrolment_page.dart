@@ -209,7 +209,7 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
               onPressed: _controller.isLoading
                   ? null
                   : () {
-                      _controller.loadEnrolments();
+                      _controller.loadEnrolments(forceRefresh: true);
                       _controller.loadDependencies();
                     },
               icon: const Icon(Icons.refresh, color: AppTheme.primaryDark),

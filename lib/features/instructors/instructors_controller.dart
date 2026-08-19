@@ -63,13 +63,13 @@ class InstructorsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadInstructors() async {
+  Future<void> loadInstructors({bool forceRefresh = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _instructors = await _service.fetchInstructors();
+      _instructors = await _service.fetchInstructors(forceRefresh: forceRefresh);
     } catch (e) {
       _errorMessage = _service.extractErrorMessage(e);
       _instructors = [];
