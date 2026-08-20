@@ -64,7 +64,6 @@ class AuthService {
   }
 
   /// Perform login HTTP POST request via Dio.
-  /// Falls back to stubbed mock login response if server is unreachable.
   Future<AuthResponseModel> login(AuthRequestModel request) async {
     try {
       final response = await _apiClient.dio.post(
@@ -73,7 +72,6 @@ class AuthService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        _apiClient.setMockMode(false);
         final authResponse = AuthResponseModel.fromJson(response.data);
         await _saveSession(authResponse, rememberMe: request.rememberMe);
         return authResponse;
@@ -85,7 +83,6 @@ class AuthService {
         );
       }
     } on DioException catch (e) {
-      // If server responded (e.g. 400, 401, 403, 500), throw real server message
       if (e.response != null && e.response?.data != null) {
         final data = e.response!.data;
         String? serverMsg;
@@ -98,30 +95,9 @@ class AuthService {
           serverMsg ?? 'Invalid credentials (${e.response?.statusCode}).',
         );
       }
-
-      // Fallback to mock only if server is unreachable / offline
-      _apiClient.setMockMode(true);
-      await Future.delayed(const Duration(milliseconds: 1200));
-
-      final isEmail = request.identifier.contains('@');
-      final mockUser = UserModel(
-        id: 'usr_001',
-        username: request.identifier,
-        firstName: isEmail ? 'Demo' : request.identifier,
-        lastName: isEmail ? 'User' : 'Admin',
-        email: isEmail ? request.identifier : '${request.identifier}@dsms.com',
-        phone: '+251911223344',
-        role: 'admin',
+      throw Exception(
+        e.message ?? 'Cannot connect to server. Please check your network connection.',
       );
-
-      final mockResponse = AuthResponseModel(
-        accessToken: 'mock_jwt_token_dsms_2026',
-        refreshToken: 'mock_refresh_token_dsms_2026',
-        user: mockUser,
-      );
-
-      await _saveSession(mockResponse, rememberMe: request.rememberMe);
-      return mockResponse;
     }
   }
 
@@ -130,7 +106,7 @@ class AuthService {
     try {
       await _apiClient.dio.post('/auth/logout');
     } catch (_) {
-      // Ignore network failures on logout mock
+      // Ignore network failures on logout
     } finally {
       await _apiClient.clearAuthToken();
       try {

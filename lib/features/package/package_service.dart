@@ -20,7 +20,6 @@ class PackageService {
 
     if ((response.statusCode == 200 || response.statusCode == 304) &&
         response.data != null) {
-      ApiClient().setMockMode(false);
       final dynamic data = ApiClient.parseResponseData(response.data);
       List<dynamic> list = [];
       if (data is Map) {

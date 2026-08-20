@@ -229,7 +229,7 @@ class ForgotPasswordController extends ChangeNotifier {
 
     try {
       final request = ResetPasswordRequestModel(
-        resetToken: _resetToken ?? 'mock_reset_token',
+        resetToken: _resetToken ?? '',
         newPassword: newPasswordController.text,
       );
 

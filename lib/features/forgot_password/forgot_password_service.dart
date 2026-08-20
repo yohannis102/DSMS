@@ -33,16 +33,8 @@ class ForgotPasswordService {
         );
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-            _extractErrorMessage(e, 'Failed to request password reset.'));
-      }
-      // Fallback only if backend server is unreachable
-      await Future.delayed(const Duration(milliseconds: 1200));
-      return ForgotPasswordResponseModel(
-        success: true,
-        message:
-            'A 6-digit verification code has been sent to ${request.email}.',
+      throw Exception(
+        _extractErrorMessage(e, 'Failed to request password reset.'),
       );
     }
   }
@@ -79,24 +71,9 @@ class ForgotPasswordService {
         );
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(
-            _extractErrorMessage(e, 'Invalid verification code.'));
-      }
-      // Fallback only if backend server is unreachable
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (request.otpCode == '123456') {
-        return ForgotPasswordResponseModel(
-          success: true,
-          message: 'OTP verified successfully.',
-          resetToken:
-              'mock_reset_token_6digit_${DateTime.now().millisecondsSinceEpoch}',
-        );
-      } else {
-        throw Exception(
-          'Invalid OTP code. Please try entering "123456" for demo.',
-        );
-      }
+      throw Exception(
+        _extractErrorMessage(e, 'Invalid verification code.'),
+      );
     }
   }
 
@@ -128,31 +105,36 @@ class ForgotPasswordService {
         );
       }
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(_extractErrorMessage(e, 'Failed to reset password.'));
-      }
-      // Fallback only if backend server is unreachable
-      await Future.delayed(const Duration(milliseconds: 1200));
-      return ForgotPasswordResponseModel(
-        success: true,
-        message:
-            'Your password has been successfully reset. You can now sign in with your new password.',
-      );
+      throw Exception(_extractErrorMessage(e, 'Failed to reset password.'));
     }
   }
 
   /// Helper to extract error message from backend Dio response
   String _extractErrorMessage(DioException e, String fallbackMessage) {
     if (e.response != null && e.response?.data != null) {
-      final data = e.response!.data;
+      final dynamic data = ApiClient.parseResponseData(e.response!.data);
       if (data is Map<String, dynamic>) {
+        if (data['errors'] is List && (data['errors'] as List).isNotEmpty) {
+          final messages = (data['errors'] as List)
+              .map((item) {
+                if (item is Map) {
+                  return item['msg']?.toString() ??
+                      item['message']?.toString() ??
+                      item['error']?.toString();
+                }
+                return item?.toString();
+              })
+              .where((msg) => msg != null && msg.trim().isNotEmpty)
+              .join(', ');
+          if (messages.isNotEmpty) return messages;
+        }
         if (data['message'] != null) return data['message'].toString();
         if (data['error'] != null) return data['error'].toString();
-        if (data['detail'] != null) return data['detail'].toString();
+        if (data['msg'] != null) return data['msg'].toString();
       } else if (data is String && data.isNotEmpty) {
         return data;
       }
     }
-    return fallbackMessage;
+    return e.message ?? fallbackMessage;
   }
 }
