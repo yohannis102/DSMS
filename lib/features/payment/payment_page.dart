@@ -856,6 +856,7 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
 
   String? _selectedEnrollmentId;
   String _status = 'paid';
+  bool _isSubmitting = false;
   XFile? _pickedProofImage;
   final ImagePicker _picker = ImagePicker();
 
@@ -937,6 +938,8 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
       return;
     }
 
+    setState(() => _isSubmitting = true);
+
     try {
       await widget.controller.createPayment(
         enrollmentId: _selectedEnrollmentId!,
@@ -956,10 +959,11 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isSubmitting = false);
         AppToast.showError(
           context: context,
           title: 'Submission Failed',
-          description: e.toString(),
+          description: e.toString().replaceAll('Exception: ', ''),
         );
       }
     }
@@ -1016,7 +1020,7 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -1239,7 +1243,7 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                     child: const Text(
                       'Cancel',
                       style: TextStyle(color: AppTheme.secondaryText),
@@ -1247,7 +1251,7 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: widget.controller.isSubmitting ? null : _submit,
+                    onPressed: _isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryDark,
                       foregroundColor: Colors.white,
@@ -1259,7 +1263,7 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: widget.controller.isSubmitting
+                    child: _isSubmitting
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -1745,6 +1749,7 @@ class _UpdatePaymentDialog extends StatefulWidget {
 class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
   late String _status;
   late final TextEditingController _remarksController;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -1764,6 +1769,7 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
   }
 
   Future<void> _submit() async {
+    setState(() => _isSubmitting = true);
     try {
       await widget.controller.updatePayment(
         id: widget.payment.id,
@@ -1781,10 +1787,11 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isSubmitting = false);
         AppToast.showError(
           context: context,
           title: 'Update Failed',
-          description: e.toString(),
+          description: e.toString().replaceAll('Exception: ', ''),
         );
       }
     }
@@ -1815,7 +1822,7 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded, size: 20),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -1949,7 +1956,7 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
                   child: const Text(
                     'Cancel',
                     style: TextStyle(color: AppTheme.secondaryText),
@@ -1957,7 +1964,7 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: widget.controller.isSubmitting ? null : _submit,
+                  onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryDark,
                     foregroundColor: Colors.white,
@@ -1965,7 +1972,7 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: widget.controller.isSubmitting
+                  child: _isSubmitting
                       ? const SizedBox(
                           width: 18,
                           height: 18,
@@ -1990,11 +1997,42 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
 // -----------------------------------------------------------------------------
 // DELETE PAYMENT CONFIRMATION DIALOG
 // -----------------------------------------------------------------------------
-class _DeletePaymentDialog extends StatelessWidget {
+class _DeletePaymentDialog extends StatefulWidget {
   final PaymentModel payment;
   final PaymentController controller;
 
   const _DeletePaymentDialog({required this.payment, required this.controller});
+
+  @override
+  State<_DeletePaymentDialog> createState() => _DeletePaymentDialogState();
+}
+
+class _DeletePaymentDialogState extends State<_DeletePaymentDialog> {
+  bool _isDeleting = false;
+
+  Future<void> _handleDelete() async {
+    setState(() => _isDeleting = true);
+    try {
+      await widget.controller.deletePayment(widget.payment.id);
+      if (mounted) {
+        Navigator.of(context).pop();
+        AppToast.showSuccess(
+          context: context,
+          title: 'Payment Deleted',
+          description: 'The payment record was deleted.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isDeleting = false);
+        AppToast.showError(
+          context: context,
+          title: 'Delete Failed',
+          description: e.toString().replaceAll('Exception: ', ''),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2030,7 +2068,7 @@ class _DeletePaymentDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Are you sure you want to delete payment ${payment.referenceNo} for ${payment.student.fullName}? This action cannot be undone.',
+              'Are you sure you want to delete payment ${widget.payment.referenceNo} for ${widget.payment.student.fullName}? This action cannot be undone.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
@@ -2042,7 +2080,7 @@ class _DeletePaymentDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: _isDeleting ? null : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.border),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -2059,30 +2097,7 @@ class _DeletePaymentDialog extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: controller.isSubmitting
-                        ? null
-                        : () async {
-                            try {
-                              await controller.deletePayment(payment.id);
-                              if (context.mounted) {
-                                Navigator.of(context).pop();
-                                AppToast.showSuccess(
-                                  context: context,
-                                  title: 'Payment Deleted',
-                                  description:
-                                      'The payment record was deleted.',
-                                );
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                AppToast.showError(
-                                  context: context,
-                                  title: 'Delete Failed',
-                                  description: e.toString(),
-                                );
-                              }
-                            }
-                          },
+                    onPressed: _isDeleting ? null : _handleDelete,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFDC2626),
                       foregroundColor: Colors.white,
@@ -2091,7 +2106,7 @@ class _DeletePaymentDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: controller.isSubmitting
+                    child: _isDeleting
                         ? const SizedBox(
                             width: 18,
                             height: 18,

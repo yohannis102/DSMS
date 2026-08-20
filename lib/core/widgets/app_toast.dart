@@ -4,6 +4,8 @@ import 'package:toastification/toastification.dart';
 class AppToast {
   AppToast._();
 
+  static const Duration _defaultDuration = Duration(milliseconds: 2500);
+
   static void showSuccess({
     required BuildContext context,
     required String title,
@@ -12,21 +14,27 @@ class AppToast {
     toastification.show(
       context: context,
       type: ToastificationType.success,
-      style: ToastificationStyle.flatColored,
+      style: ToastificationStyle.simple,
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
       ),
-      description: description != null ? Text(description) : null,
+      description: description != null
+          ? Text(
+              description,
+              style: const TextStyle(fontSize: 12),
+            )
+          : null,
       alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 4),
-      borderRadius: BorderRadius.circular(12),
+      autoCloseDuration: _defaultDuration,
+      showProgressBar: false,
+      borderRadius: BorderRadius.circular(10),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x1A000000),
-          blurRadius: 16,
-          offset: Offset(0, 4),
-        )
+          color: Color(0x0D000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
       ],
     );
   }
@@ -39,21 +47,27 @@ class AppToast {
     toastification.show(
       context: context,
       type: ToastificationType.error,
-      style: ToastificationStyle.flatColored,
+      style: ToastificationStyle.simple,
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
       ),
-      description: description != null ? Text(description) : null,
+      description: description != null
+          ? Text(
+              description,
+              style: const TextStyle(fontSize: 12),
+            )
+          : null,
       alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 4),
-      borderRadius: BorderRadius.circular(12),
+      autoCloseDuration: const Duration(seconds: 3),
+      showProgressBar: false,
+      borderRadius: BorderRadius.circular(10),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x1A000000),
-          blurRadius: 16,
-          offset: Offset(0, 4),
-        )
+          color: Color(0x0D000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
       ],
     );
   }
@@ -66,21 +80,27 @@ class AppToast {
     toastification.show(
       context: context,
       type: ToastificationType.warning,
-      style: ToastificationStyle.flatColored,
+      style: ToastificationStyle.simple,
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
       ),
-      description: description != null ? Text(description) : null,
+      description: description != null
+          ? Text(
+              description,
+              style: const TextStyle(fontSize: 12),
+            )
+          : null,
       alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 4),
-      borderRadius: BorderRadius.circular(12),
+      autoCloseDuration: _defaultDuration,
+      showProgressBar: false,
+      borderRadius: BorderRadius.circular(10),
       boxShadow: const [
         BoxShadow(
-          color: Color(0x1A000000),
-          blurRadius: 16,
-          offset: Offset(0, 4),
-        )
+          color: Color(0x0D000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
       ],
     );
   }
@@ -93,15 +113,28 @@ class AppToast {
     toastification.show(
       context: context,
       type: ToastificationType.info,
-      style: ToastificationStyle.flatColored,
+      style: ToastificationStyle.simple,
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
       ),
-      description: description != null ? Text(description) : null,
+      description: description != null
+          ? Text(
+              description,
+              style: const TextStyle(fontSize: 12),
+            )
+          : null,
       alignment: Alignment.topCenter,
-      autoCloseDuration: const Duration(seconds: 3),
-      borderRadius: BorderRadius.circular(12),
+      autoCloseDuration: const Duration(seconds: 2),
+      showProgressBar: false,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x0D000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
+      ],
     );
   }
 }
