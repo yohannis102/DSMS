@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/admin_layout.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
 import '../enrolment/enrolment_page.dart';
 import '../instructors/instructors_page.dart';
@@ -108,136 +109,99 @@ class _DashboardContentViewState extends State<DashboardContentView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: RefreshIndicator(
+      body: AppPullToRefresh(
         onRefresh: () async => _controller.loadDashboard(forceRefresh: true),
         color: AppTheme.secondaryColor,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row
-              _buildHeader(),
-              const SizedBox(height: 20),
-
-              // Error State Banner if needed
-              if (_controller.errorMessage != null) ...[
-                _buildErrorBanner(),
-                const SizedBox(height: 16),
-              ],
-
-              // Top 4 Metric KPI Cards
-              _buildMetricCardsGrid(screenWidth),
-              const SizedBox(height: 24),
-
-              // Analytics Charts Row (Monthly Revenue & Monthly Enrollments)
-              if (isDesktop)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildMonthlyIncomeCard()),
-                    const SizedBox(width: 20),
-                    Expanded(child: _buildMonthlyEnrollmentsCard()),
-                  ],
-                )
-              else ...[
-                _buildMonthlyIncomeCard(),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Row
+                _buildHeader(),
                 const SizedBox(height: 20),
-                _buildMonthlyEnrollmentsCard(),
-              ],
-              const SizedBox(height: 24),
 
-              // Breakdown & Popularity Row (Payment Breakdown & Package Popularity)
-              if (isDesktop)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildPaymentBreakdownCard()),
-                    const SizedBox(width: 20),
-                    Expanded(child: _buildPackagePopularityCard()),
-                  ],
-                )
-              else ...[
-                _buildPaymentBreakdownCard(),
-                const SizedBox(height: 20),
-                _buildPackagePopularityCard(),
-              ],
-              const SizedBox(height: 24),
+                // Error State Banner if needed
+                if (_controller.errorMessage != null) ...[
+                  _buildErrorBanner(),
+                  const SizedBox(height: 16),
+                ],
 
-              // Instructor Workload & Recent Payments Row
-              if (isDesktop)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 5, child: _buildInstructorWorkloadCard()),
-                    const SizedBox(width: 20),
-                    Expanded(flex: 6, child: _buildRecentPaymentsCard()),
-                  ],
-                )
-              else ...[
-                _buildInstructorWorkloadCard(),
-                const SizedBox(height: 20),
-                _buildRecentPaymentsCard(),
+                // Top 4 Metric KPI Cards
+                _buildMetricCardsGrid(screenWidth),
+                const SizedBox(height: 24),
+
+                // Analytics Charts Row (Monthly Revenue & Monthly Enrollments)
+                if (isDesktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildMonthlyIncomeCard()),
+                      const SizedBox(width: 20),
+                      Expanded(child: _buildMonthlyEnrollmentsCard()),
+                    ],
+                  )
+                else ...[
+                  _buildMonthlyIncomeCard(),
+                  const SizedBox(height: 20),
+                  _buildMonthlyEnrollmentsCard(),
+                ],
+                const SizedBox(height: 24),
+
+                // Breakdown & Popularity Row (Payment Breakdown & Package Popularity)
+                if (isDesktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildPaymentBreakdownCard()),
+                      const SizedBox(width: 20),
+                      Expanded(child: _buildPackagePopularityCard()),
+                    ],
+                  )
+                else ...[
+                  _buildPaymentBreakdownCard(),
+                  const SizedBox(height: 20),
+                  _buildPackagePopularityCard(),
+                ],
+                const SizedBox(height: 24),
+
+                // Instructor Workload & Recent Payments Row
+                if (isDesktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: _buildInstructorWorkloadCard()),
+                      const SizedBox(width: 20),
+                      Expanded(flex: 6, child: _buildRecentPaymentsCard()),
+                    ],
+                  )
+                else ...[
+                  _buildInstructorWorkloadCard(),
+                  const SizedBox(height: 20),
+                  _buildRecentPaymentsCard(),
+                ],
+                const SizedBox(height: 32),
               ],
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Admin Dashboard',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                  letterSpacing: -0.5,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+        Text(
+          'Admin Dashboard',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
+            letterSpacing: -0.5,
           ),
-        ),
-        const SizedBox(width: 12),
-        FilledButton.tonalIcon(
-          onPressed: _controller.isLoading
-              ? null
-              : () => _controller.loadDashboard(forceRefresh: true),
-          icon: _controller.isLoading
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppTheme.secondaryColor,
-                  ),
-                )
-              : const Icon(Icons.refresh_rounded, size: 18),
-          label: Text(
-            _controller.isLoading ? 'Refreshing...' : 'Refresh',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFEFF6FF),
-            foregroundColor: AppTheme.secondaryColor,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: const BorderSide(color: Color(0xFFBFDBFE)),
-            ),
-          ),
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

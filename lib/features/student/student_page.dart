@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/profile_image_picker.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
@@ -71,64 +72,52 @@ class _StudentPageState extends State<StudentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Students Management',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.darkText,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+      body: AppPullToRefresh(
+        onRefresh: () async => _controller.loadStudents(forceRefresh: true),
+        color: AppTheme.primaryDark,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Bar
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  'Students Management',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkText,
                   ),
-                  IconButton(
-                    onPressed: _controller.isLoading
-                        ? null
-                        : () => _controller.loadStudents(forceRefresh: true),
-                    icon: const Icon(
-                      Icons.refresh,
-                      color: AppTheme.primaryDark,
-                    ),
-                    tooltip: 'Refresh Students',
-                  ),
-                ],
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Metric Summary Cards
-            _buildMetricCards(),
-            const SizedBox(height: 12),
+              // Metric Summary Cards
+              _buildMetricCards(),
+              const SizedBox(height: 12),
 
-            // Search & Filter Toolbar
-            _buildSearchAndFilters(),
-            const SizedBox(height: 12),
+              // Search & Filter Toolbar
+              _buildSearchAndFilters(),
+              const SizedBox(height: 12),
 
-            // Main Content Card
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 4),
-                ],
+              // Main Content Card
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black12, blurRadius: 4),
+                  ],
+                ),
+                child: _buildBody(),
               ),
-              child: _buildBody(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

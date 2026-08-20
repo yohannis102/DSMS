@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'payment_controller.dart';
 
@@ -34,9 +35,12 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      body: AppPullToRefresh(
+        onRefresh: () async => _controller.loadPayments(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(24),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -83,7 +87,8 @@ class _PaymentPageState extends State<PaymentPage> {
                       ),
                     ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
 import '../package/package_model.dart';
@@ -77,146 +78,131 @@ class _EnrolmentPageState extends State<EnrolmentPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Bar
-            _buildTopBar(),
-            const SizedBox(height: 18),
+      body: AppPullToRefresh(
+        onRefresh: () async {
+          await _controller.loadEnrolments(forceRefresh: true);
+          await _controller.loadDependencies();
+        },
+        color: AppTheme.secondaryColor,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Bar
+              _buildTopBar(),
+              const SizedBox(height: 18),
 
-            // Metric Summary Cards
-            _buildMetricCards(),
-            const SizedBox(height: 18),
+              // Metric Summary Cards
+              _buildMetricCards(),
+              const SizedBox(height: 18),
 
-            // Search & Filter Toolbar
-            _buildSearchAndFilters(),
-            const SizedBox(height: 16),
+              // Search & Filter Toolbar
+              _buildSearchAndFilters(),
+              const SizedBox(height: 16),
 
-            // Main Content Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.border),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x08000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Table Header / Info Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Enrolled Students (${_controller.filteredEnrolments.length})',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.darkText,
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () => _openEnrollmentForm(),
-                        icon: const Icon(
-                          Icons.person_add_alt_1_rounded,
-                          size: 15,
-                        ),
-                        label: const Text(
-                          'New Enrollment',
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.secondaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+              // Main Content Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x08000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Table Header / Info Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Enrolled Students (${_controller.filteredEnrolments.length})',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.darkText,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Data View
-                  if (_controller.isLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 64),
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.secondaryColor,
+                        ElevatedButton.icon(
+                          onPressed: () => _openEnrollmentForm(),
+                          icon: const Icon(
+                            Icons.person_add_alt_1_rounded,
+                            size: 15,
+                          ),
+                          label: const Text(
+                            'New Enrollment',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.secondaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         ),
-                      ),
-                    )
-                  else if (_controller.filteredEnrolments.isEmpty)
-                    _buildEmptyState()
-                  else if (isDesktop)
-                    _buildDesktopTable()
-                  else
-                    _buildMobileCardsList(),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
 
-                  const SizedBox(height: 16),
+                    // Data View
+                    if (_controller.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 64),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.secondaryColor,
+                          ),
+                        ),
+                      )
+                    else if (_controller.filteredEnrolments.isEmpty)
+                      _buildEmptyState()
+                    else if (isDesktop)
+                      _buildDesktopTable()
+                    else
+                      _buildMobileCardsList(),
 
-                  // Pagination Footer
-                  if (!_controller.isLoading &&
-                      _controller.filteredEnrolments.isNotEmpty)
-                    _buildPaginationFooter(),
-                ],
+                    const SizedBox(height: 16),
+
+                    // Pagination Footer
+                    if (!_controller.isLoading &&
+                        _controller.filteredEnrolments.isNotEmpty)
+                      _buildPaginationFooter(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTopBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Enrolments Management',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.darkText,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+        Text(
+          'Enrolments Management',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.darkText,
           ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              onPressed: _controller.isLoading
-                  ? null
-                  : () {
-                      _controller.loadEnrolments(forceRefresh: true);
-                      _controller.loadDependencies();
-                    },
-              icon: const Icon(Icons.refresh, color: AppTheme.primaryDark),
-              tooltip: 'Refresh Enrolments',
-            ),
-            const SizedBox(width: 8),
-          ],
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

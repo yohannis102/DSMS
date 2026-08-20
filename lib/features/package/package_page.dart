@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
 import 'package_controller.dart';
@@ -82,79 +83,57 @@ class _PackagePageState extends State<PackagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Training Packages',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.darkText,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+      body: AppPullToRefresh(
+        onRefresh: () async => _controller.loadPackages(),
+        color: AppTheme.primaryDark,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Bar
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  'Training Packages',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkText,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Metric Summary Cards
+              _buildMetricCards(),
+              const SizedBox(height: 16),
+
+              // Search & Filter Toolbar
+              _buildSearchAndFilters(),
+              const SizedBox(height: 14),
+
+              // Main Content Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x08000000),
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: _controller.isLoading
-                            ? null
-                            : () => _controller.loadPackages(),
-                        icon: const Icon(
-                          Icons.refresh,
-                          color: AppTheme.primaryDark,
-                        ),
-                        tooltip: 'Refresh Packages',
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
+                child: _buildBody(),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Metric Summary Cards
-            _buildMetricCards(),
-            const SizedBox(height: 16),
-
-            // Search & Filter Toolbar
-            _buildSearchAndFilters(),
-            const SizedBox(height: 14),
-
-            // Main Content Card
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppTheme.border),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x08000000),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: _buildBody(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

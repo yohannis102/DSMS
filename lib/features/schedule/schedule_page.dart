@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/app_pull_to_refresh.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/scrollable_table_wrapper.dart';
 import '../instructors/instructors_model.dart';
@@ -86,84 +87,66 @@ class _SchedulePageState extends State<SchedulePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.lightBackground,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Bar
-            _buildTopBar(),
-            const SizedBox(height: 16),
+      body: AppPullToRefresh(
+        onRefresh: () async => _controller.loadSchedules(),
+        color: AppTheme.primaryDark,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Bar
+              _buildTopBar(),
+              const SizedBox(height: 16),
 
-            // Summary Metric Cards
-            _buildMetricCards(),
-            const SizedBox(height: 16),
+              // Summary Metric Cards
+              _buildMetricCards(),
+              const SizedBox(height: 16),
 
-            // Search & Filters Toolbar
-            _buildSearchAndFilters(),
-            const SizedBox(height: 16),
+              // Search & Filters Toolbar
+              _buildSearchAndFilters(),
+              const SizedBox(height: 16),
 
-            // Table / Content Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.border),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+              // Table / Content Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: _buildBody(),
               ),
-              child: _buildBody(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTopBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  'Training Schedules',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.darkText,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          Text(
+            'Training Schedules',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.darkText,
             ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: _controller.isLoading
-                    ? null
-                    : () => _controller.loadSchedules(),
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                  color: AppTheme.primaryDark,
-                ),
-                tooltip: 'Refresh Schedules',
-              ),
-              const SizedBox(width: 8),
-            ],
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
