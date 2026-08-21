@@ -136,10 +136,7 @@ class _PaymentPageState extends State<PaymentPage> {
           SizedBox(height: 4),
           Text(
             'Track revenue, fee collections, and verify student payments',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppTheme.secondaryText,
-            ),
+            style: TextStyle(fontSize: 13, color: AppTheme.secondaryText),
           ),
         ],
       ),
@@ -148,11 +145,16 @@ class _PaymentPageState extends State<PaymentPage> {
 
   String _formatCurrency(double amount) {
     final hasDecimals = amount % 1 != 0;
-    final formattedNum = hasDecimals ? amount.toStringAsFixed(2) : amount.toStringAsFixed(0);
+    final formattedNum = hasDecimals
+        ? amount.toStringAsFixed(2)
+        : amount.toStringAsFixed(0);
     final parts = formattedNum.split('.');
     final integerPart = parts[0];
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
-    final formattedInt = integerPart.replaceAllMapped(reg, (Match m) => '${m[1]},');
+    final formattedInt = integerPart.replaceAllMapped(
+      reg,
+      (Match m) => '${m[1]},',
+    );
     if (parts.length > 1) {
       return '$formattedInt.${parts[1]} ETB';
     }
@@ -444,7 +446,10 @@ class _PaymentPageState extends State<PaymentPage> {
                 backgroundColor: AppTheme.primaryDark,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1020,7 +1025,9 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
-                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -1243,7 +1250,9 @@ class _PaymentFormSheetState extends State<_PaymentFormSheet> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     child: const Text(
                       'Cancel',
                       style: TextStyle(color: AppTheme.secondaryText),
@@ -1465,6 +1474,7 @@ class _PaymentDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       backgroundColor: Colors.white,
       child: Container(
@@ -1477,49 +1487,48 @@ class _PaymentDetailsDialog extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: payment.statusBgColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          payment.isPaid
-                              ? Icons.check_circle_rounded
-                              : Icons.pending_actions_rounded,
-                          color: payment.statusColor,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            payment.referenceNo.isNotEmpty
-                                ? payment.referenceNo
-                                : 'Payment Details',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.darkText,
-                            ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: payment.statusBgColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      payment.isPaid
+                          ? Icons.check_circle_rounded
+                          : Icons.pending_actions_rounded,
+                      color: payment.statusColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          payment.referenceNo.isNotEmpty
+                              ? payment.referenceNo
+                              : 'Payment Details',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.darkText,
                           ),
-                          Text(
-                            'Status: ${payment.status.toUpperCase()}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: payment.statusColor,
-                            ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Status: ${payment.status.toUpperCase()}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: payment.statusColor,
                           ),
-                        ],
-                      ),
-                    ],
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20),
@@ -1655,41 +1664,53 @@ class _PaymentDetailsDialog extends StatelessWidget {
             const Divider(height: 1, color: AppTheme.border),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: onDelete,
-                    icon: const Icon(
-                      Icons.delete_outline_rounded,
-                      size: 16,
-                      color: Color(0xFFEF4444),
-                    ),
-                    label: const Text(
-                      'Delete',
-                      style: TextStyle(color: Color(0xFFEF4444)),
-                    ),
-                  ),
-                  const Spacer(),
-                  if (!payment.isPaid && controller.isAdmin) ...[
-                    ElevatedButton.icon(
-                      onPressed: onVerifyStatus,
-                      icon: const Icon(Icons.verified_rounded, size: 16),
-                      label: const Text('Mark as Paid & Verify'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF16A34A),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+              child: SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton.icon(
+                      onPressed: onDelete,
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        size: 16,
+                        color: Color(0xFFEF4444),
+                      ),
+                      label: const Text(
+                        'Delete',
+                        style: TextStyle(color: Color(0xFFEF4444)),
                       ),
                     ),
-                  ] else ...[
-                    OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close'),
-                    ),
+                    if (!payment.isPaid && controller.isAdmin) ...[
+                      ElevatedButton.icon(
+                        onPressed: onVerifyStatus,
+                        icon: const Icon(Icons.verified_rounded, size: 16),
+                        label: const Text(
+                          'Mark as Paid & Verify',
+                          style: TextStyle(color: AppTheme.secondaryColor),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text(
+                          'Close',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ],
@@ -1822,7 +1843,9 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded, size: 20),
-                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                  onPressed: _isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -1956,7 +1979,9 @@ class _UpdatePaymentDialogState extends State<_UpdatePaymentDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                  onPressed: _isSubmitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   child: const Text(
                     'Cancel',
                     style: TextStyle(color: AppTheme.secondaryText),
@@ -2080,7 +2105,9 @@ class _DeletePaymentDialogState extends State<_DeletePaymentDialog> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isDeleting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isDeleting
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.border),
                       padding: const EdgeInsets.symmetric(vertical: 12),

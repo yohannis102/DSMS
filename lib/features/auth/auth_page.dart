@@ -6,6 +6,7 @@ import '../../core/widgets/custom_text_field.dart';
 import 'auth_controller.dart';
 import '../admin_dashboard/admin_dashboard_page.dart';
 import '../forgot_password/forgot_password_page.dart';
+import '../student_dashboard/student_dashboard_page.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -33,15 +34,22 @@ class _AuthPageState extends State<AuthPage> {
     _controller.submitLogin(
       onSuccess: () {
         if (!mounted) return;
+        final user = _controller.currentUser;
+        final isStudent = user?.role.trim().toLowerCase() == 'student';
+
         AppToast.showSuccess(
           context: context,
           title: 'Welcome Back!',
           description:
-              'Login successful as ${_controller.currentUser?.name ?? "User"}.',
+              'Login successful as ${user?.name ?? "User"}.',
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const AdminDashboardPage()),
+          MaterialPageRoute(
+            builder: (_) => isStudent
+                ? const StudentDashboardPage()
+                : const AdminDashboardPage(),
+          ),
         );
       },
       onError: (message) {

@@ -15,6 +15,7 @@ class AppTheme {
   static const Color surfaceColor = Colors.white;
 
   static const Color border = Color(0xFFE2E8F0); // Slate 200
+  static const Color borderColor = border;
   static const Color focusBorder = Color(0xFF1B70A4);
   static const Color errorColor = Color(0xFFEF4444); // Red 500
   static const Color successColor = Color(0xFF10B981); // Emerald 500

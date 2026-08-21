@@ -5,14 +5,14 @@ import '../../features/auth/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'app_toast.dart';
 
-class AdminLayout extends StatefulWidget {
+class StudentLayout extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int>? onItemSelected;
   final VoidCallback? onSignOut;
   final Widget child;
   final String? title;
 
-  const AdminLayout({
+  const StudentLayout({
     super.key,
     this.selectedIndex = 0,
     this.onItemSelected,
@@ -22,10 +22,10 @@ class AdminLayout extends StatefulWidget {
   });
 
   @override
-  State<AdminLayout> createState() => _AdminLayoutState();
+  State<StudentLayout> createState() => _StudentLayoutState();
 }
 
-class _AdminLayoutState extends State<AdminLayout> {
+class _StudentLayoutState extends State<StudentLayout> {
   final AuthService _authService = AuthService();
 
   @override
@@ -43,21 +43,17 @@ class _AdminLayoutState extends State<AdminLayout> {
   String _getDefaultTitle(int index) {
     switch (index) {
       case 0:
-        return 'Dashboard';
+        return 'Student Dashboard';
       case 1:
-        return 'Students';
+        return 'My Profile';
       case 2:
-        return 'Instructors';
-      case 3:
-        return 'Enrolments';
-      case 4:
         return 'Schedules';
-      case 5:
+      case 3:
         return 'Payments';
-      case 6:
-        return 'Packages';
+      case 4:
+        return 'Reports';
       default:
-        return 'DSMS Admin';
+        return 'DSMS Student';
     }
   }
 
@@ -138,26 +134,26 @@ class _AdminLayoutState extends State<AdminLayout> {
             ),
             const Divider(height: 15),
           ],
-          // User Avatar & Info section (dynamically loaded from API/Auth session)
+          // Student User Avatar & Info section (dynamically loaded from API/Auth session)
           ValueListenableBuilder<UserModel?>(
             valueListenable: AuthService.currentUserNotifier,
             builder: (context, user, _) {
               final displayName = user?.name.isNotEmpty == true
                   ? user!.name
-                  : (user?.username.isNotEmpty == true ? user!.username : 'Admin User');
+                  : (user?.username.isNotEmpty == true ? user!.username : 'Student User');
               final displayEmail = user?.email?.isNotEmpty == true
                   ? user!.email!
-                  : 'admin@dsms.com';
+                  : 'student@dsms.com';
               final initial = displayName.isNotEmpty
                   ? displayName[0].toUpperCase()
-                  : 'A';
+                  : 'S';
 
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius: 18,
+                      radius: 20,
                       backgroundColor: AppTheme.primaryColor,
                       child: Text(
                         initial,
@@ -183,6 +179,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             displayEmail,
                             style: const TextStyle(
@@ -190,6 +187,26 @@ class _AdminLayoutState extends State<AdminLayout> {
                               color: AppTheme.secondaryText,
                             ),
                             overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryLight,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'STUDENT',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.primaryColor,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -213,44 +230,30 @@ class _AdminLayoutState extends State<AdminLayout> {
                 ),
                 _buildNavItem(
                   context,
-                  Icons.people_outline_rounded,
-                  'Students',
+                  Icons.person_outline_rounded,
+                  'My Profile',
                   1,
-                  isDesktop,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.badge_outlined,
-                  'Instructors',
-                  2,
-                  isDesktop,
-                ),
-                _buildNavItem(
-                  context,
-                  Icons.assignment_outlined,
-                  'Enrolments',
-                  3,
                   isDesktop,
                 ),
                 _buildNavItem(
                   context,
                   Icons.calendar_month_outlined,
                   'Schedules',
-                  4,
+                  2,
                   isDesktop,
                 ),
                 _buildNavItem(
                   context,
                   Icons.payments_outlined,
-                  'Payments',
-                  5,
+                  'Payment',
+                  3,
                   isDesktop,
                 ),
                 _buildNavItem(
                   context,
-                  Icons.inventory_2_outlined,
-                  'Packages',
-                  6,
+                  Icons.assessment_outlined,
+                  'Report',
+                  4,
                   isDesktop,
                 ),
               ],

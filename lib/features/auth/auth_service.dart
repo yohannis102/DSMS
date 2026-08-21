@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import '../../core/network/api_client.dart';
 import 'auth_model.dart';
 
@@ -9,11 +10,17 @@ class AuthService {
   static const String _kRememberMeKey = 'remember_me';
   static const String _kUserDataKey = 'current_user_data';
 
+  /// Reactive notifier for the currently active/logged-in user
+  static final ValueNotifier<UserModel?> currentUserNotifier =
+      ValueNotifier<UserModel?>(null);
+
   /// Save session details locally
   Future<void> _saveSession(
     AuthResponseModel authResponse, {
     required bool rememberMe,
   }) async {
+    currentUserNotifier.value = authResponse.user;
+
     await _apiClient.setAuthToken(
       authResponse.accessToken,
       refreshToken: authResponse.refreshToken,
@@ -22,14 +29,11 @@ class AuthService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_kRememberMeKey, rememberMe);
-      if (rememberMe) {
-        await prefs.setString(
-          _kUserDataKey,
-          jsonEncode(authResponse.user.toJson()),
-        );
-      } else {
-        await prefs.remove(_kUserDataKey);
-      }
+      // Persist user data in storage for session UI display
+      await prefs.setString(
+        _kUserDataKey,
+        jsonEncode(authResponse.user.toJson()),
+      );
     } catch (_) {}
   }
 
@@ -43,6 +47,7 @@ class AuthService {
       final token = await _apiClient.getStoredToken();
       if (token != null && token.isNotEmpty) {
         await _apiClient.setAuthToken(token);
+        await getSavedUser();
         return true;
       }
       return false;
@@ -53,11 +58,16 @@ class AuthService {
 
   /// Retrieve saved user if available
   Future<UserModel?> getSavedUser() async {
+    if (currentUserNotifier.value != null) {
+      return currentUserNotifier.value;
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       final data = prefs.getString(_kUserDataKey);
       if (data != null && data.isNotEmpty) {
-        return UserModel.fromJson(jsonDecode(data));
+        final user = UserModel.fromJson(jsonDecode(data));
+        currentUserNotifier.value = user;
+        return user;
       }
     } catch (_) {}
     return null;
@@ -108,6 +118,7 @@ class AuthService {
     } catch (_) {
       // Ignore network failures on logout
     } finally {
+      currentUserNotifier.value = null;
       await _apiClient.clearAuthToken();
       try {
         final prefs = await SharedPreferences.getInstance();

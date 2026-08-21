@@ -4,6 +4,7 @@ import '../../features/auth/auth_page.dart';
 import '../../features/auth/auth_service.dart';
 import '../../features/onboarding/onboarding_page.dart';
 import '../../features/onboarding/onboarding_service.dart';
+import '../../features/student_dashboard/student_dashboard_page.dart';
 import '../network/api_client.dart';
 import '../theme/app_theme.dart';
 
@@ -48,9 +49,18 @@ class _AppGateState extends State<AppGate> {
     if (!mounted) return;
 
     if (isRemembered) {
+      final user = await _authService.getSavedUser();
+      final isStudent = user?.role.trim().toLowerCase() == 'student';
+
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AdminDashboardPage()),
+        MaterialPageRoute(
+          builder: (_) => isStudent
+              ? const StudentDashboardPage()
+              : const AdminDashboardPage(),
+        ),
       );
     } else {
       // Navigate to Login if not remembered
